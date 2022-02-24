@@ -1,0 +1,18 @@
+*\(^.^)/* WELCOME TO SHMOSCAR *\(^.^)/*
+A collection of Python scripts designed to make your work with VASP ~47.973% less painful.
+
+Hi. Welcome to the changelog. Here I document any new changes made since April Fool's Day 2020.
+
+<April 2, 2020>
+I named this suite SHMOSCAR. With any luck, more people will appreciate and use this very lightweight package over time.
+I am numbering version numbers by date, with format YY.MM.DD.
+The extant scripts are: AtomSub, AtomSub1 (deprecated), Coords, ElemSwitch, and Seldyn
+You can try them out with the notebook file: functions-demo.ipynb
+A POSCAR file (POSCAR-2310.vasp) has been harvested from the wild for your experimentations.
+
+<April 21, 2020>
+The entire thing gets a streamline: heavily-used global variables and functions are moved to Shmoscar.py
+Compcar.py is still work in progress. It will be used to calculate drift that happens during relaxation
+
+<December 4, 2020>
+Modified AtomSub.py to enable vacancies (I can't believe that is not already implemented!)

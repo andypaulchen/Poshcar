@@ -1,4 +1,4 @@
-*\(^.^)/* WELCOME TO SHMOSCAR *\(^.^)/*
+*\(^.^)/* WELCOME TO POSHCAR *\(^.^)/*
 A collection of Python scripts designed to make your work with VASP ~47.973% less painful.
 
 Hi. Welcome to the changelog. Here I document any new changes made since April Fool's Day 2020.
@@ -16,3 +16,7 @@ Compcar.py is still work in progress. It will be used to calculate drift that ha
 
 <December 4, 2020>
 Modified AtomSub.py to enable vacancies (I can't believe that is not already implemented!)
+
+<November 9, 2023>
+Big updates which I forgot to mention on the changelog! More modules were added in 2022 to build cells
+Demo notebooks are being written

@@ -12,12 +12,8 @@
 
 from Seldyn import * # selective dynamics package
 
-def ElemSwitch(in_filename, out_filename):
-    # Take (in_filename) structure, switch elements based on input prompt
-    # Output structure to (out_filename), which is user-defined.
-    
-    # Read input file
-    data = readfile(in_filename)
+def ElemSwitch(data):
+    # Switch elements based on input prompt
     
     # Print Input file information
     print("List of elements:"+ longspace + data[atom_name_index].strip())
@@ -31,7 +27,7 @@ def ElemSwitch(in_filename, out_filename):
     # Index of atoms (translate from ordinal -> location in file)
     # In the case of Selective Dynamics, the first coordinates are on line 8
     # Otherwise, it's 7
-    addindex = 8 if isSeldyn(in_filename) else 7
+    addindex = 8 if isSeldyn(data) else 7
     
     # Prompt user to say which ones to switch
     user = input("Which two elements do you want to switch?: ")
@@ -44,10 +40,8 @@ def ElemSwitch(in_filename, out_filename):
         #subset test, require 2 elements
         order = [z for z in range(card)]
         for i in range(card):
-            if (user_list[0] == elem_list[i]):
-                sw1 = i
-            if (user_list[1] == elem_list[i]):
-                sw2 = i
+            if (user_list[0] == elem_list[i]): sw1 = i
+            if (user_list[1] == elem_list[i]): sw2 = i
         switchb = order[sw1]
         order[sw1] = order[sw2]
         order[sw2] = switchb
@@ -74,41 +68,34 @@ def ElemSwitch(in_filename, out_filename):
             blox[j] = data[startl:endl]
     
         # Concatenate poscar file 
-        for m in range(card):
-            dataout += blox[order[m]]
-            
-        # Write output file
-        writefile(dataout, out_filename)
+        for m in range(card): dataout += blox[order[m]]       
+        return dataout
     else:
         print("ERROR: Invalid switching duplet! Output file not written")
-        
+
+
 # Day 37 of Lockdown: 28 April 2020. Time passes quickly like the arrows I now shoot gleefully
 # at the target in the basement. I meet my goals also like the arrows meeting the target at the 
 # basement, in other words badly.
         
-def ElemSet(in_filename, out_filename, pos, Sp2):
+def ElemSet(data, pos, Sp2):
     # Take in_filename, change all atom of species in ordinal position pos (1,2,3...etc) to Sp2
-    # Read input file
-    data = readfile(in_filename)
-    
     # Print Input file information
     print("List of elements:"+ longspace + data[atom_name_index].strip())
     
     # Identify atomic species
     elem_list = re.findall(r'\w+', data[atom_name_index].strip())
+    print(len(elem_list))
     
-    if type(pos)==int and pos-1 >= 1 and pos <= len(elem_list):
-        elem_list[pos-1] = Sp2
-        # Construct new line
-        data[atom_name_index] = ""
-        for k in range(len(elem_list)):
-            data[atom_name_index] += (longspace + elem_list[k])
-        data[atom_name_index] += "\n"
-        print("New Element Order:", longspace, data[atom_name_index].strip())
-        
-        # Write output file
-        writefile(data, out_filename)
-    else:
-        print("ERROR: Invalid parameter #3!")
-    
-    
+    if type(pos)==int and pos > 0 and pos <= len(elem_list):
+        if Sp2 in Periodic_Table:
+            elem_list[pos-1] = Sp2
+            # Construct new line
+            data[atom_name_index] = ""
+            for k in range(len(elem_list)):
+                data[atom_name_index] += (longspace + elem_list[k])
+            data[atom_name_index] += "\n"
+            print("New Element Order:", longspace, data[atom_name_index].strip())
+            return data
+        else: print("ERROR: Invalid element!")
+    else: print("ERROR: Invalid parameter #2!")

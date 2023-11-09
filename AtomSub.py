@@ -25,20 +25,14 @@
 # This I attribute to the bad habit journalists have in using arXiv papers. I plan to spend Christmas
 # reading a Dostoevsky, instead of flying home, as per custom.
 
+# Andy Paul Chen, Monday 9 May 2022, Singapore
+
+# I split up the function to a data_-headed thingimmabob. What's new in my life?
+# I now have a Krav Maga practioner certificate, for what it's worth
+
 from Seldyn import * # selective dynamics package
 
-def AtomSub(in_filename, out_filename, dopant_name, subatoms):
-    # Take (in_filename) structure, remove atoms of indiced from list (subatoms) 
-    # Put atom(s) of (dopant_name) in its place
-    # Output structure to (out_filename), which is user-defined.
-    # If dopant_name does not correspond to an element, a vacancy is created (Dec 2020)
-    
-    # You want subatoms in descending order, давай?
-    subatoms.sort(reverse = True)
-    
-    # Read input file
-    data = readfile(in_filename)
-    
+def AtomSub(data, dopant_name, subatoms):
     # Print Input file information
     print("List of elements (clean cell):"+ longspace + data[atom_name_index].strip())
     print("Number of atoms per element:" + longspace + data[atom_number_index].strip())
@@ -46,7 +40,7 @@ def AtomSub(in_filename, out_filename, dopant_name, subatoms):
     
     # In the case of Selective Dynamics, the first coordinates are on line 8
     # Otherwise, it's 7
-    addindex = 8 if isSeldyn(in_filename) else 7
+    addindex = 8 if isSeldyn(data) else 7
     
     # Read string of element symbols and number of atoms per element
     elem_list = re.findall(r'\w+', data[atom_name_index].strip())
@@ -75,19 +69,15 @@ def AtomSub(in_filename, out_filename, dopant_name, subatoms):
                                   
     # Append symbol of dopant atom to list of elements
     # Append number of dopant atom to list of numbers
-    if dopant_name not in Periodic_Table:
-        dopant_name = ""
+    if dopant_name not in Periodic_Table: dopant_name = ""
     data[atom_name_index] = longspace + data[atom_name_index].strip() + longspace + dopant_name + "\n"
     print("List of elements (with dopant):", data[atom_name_index].strip())
     data[atom_number_index] = longspace
     for m in range(len(num_list)):
         data[atom_number_index] = data[atom_number_index] + str(num_list[m]) + longspace
-    if dopant_name not in Periodic_Table:
-        dopant_number = ""
-    else:
-        dopant_number = str(len(subatoms))
+    if dopant_name not in Periodic_Table: dopant_number = ""
+    else: dopant_number = str(len(subatoms))
     data[atom_number_index] = data[atom_number_index] + dopant_number + "\n"
     print("Number of atoms per element: " + data[atom_number_index].strip())
     
-    # Write output file
-    writefile(data, out_filename)
+    return data

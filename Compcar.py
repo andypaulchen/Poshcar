@@ -9,15 +9,14 @@
 # Day #29 of lockdown. The archery target has arrived and I have been shooting some arrows. The punchbag
 # loan from Krav Maga Warrensville has also come to great use. I go to Huaxin (North Randall) every
 # Wednesday for groceries. The ladyboss laughs at me, and thinks I go there too often. "Have you eaten
-# everything already?" she asks. Should I tell her I am only there to see her pretty face, and all that
-# groceries are just a pretext? We had snow twice last week, which turned spring into winter briefly.
+# everything already?" she asks. We had snow twice last week, which turned spring into winter briefly.
 # I went out and saw Bambi eating fresh spring leaves by Doan Brook, but don't worry, I didn't shoot him.
 # The big shale rock face at Frankie's Gate is always wet. I am wondering if this is what people call
 # spring water.
 
 from Cartesian import *
 
-def data_atomsno(data1, data2):
+def atomsno(data1, data2):
     # Return list of elements and number of elements
     
     # Identify atomic species and number of atoms present in cell
@@ -28,25 +27,19 @@ def data_atomsno(data1, data2):
     
     return (elem1==elem2) and (num1==num2)
     
-def compcar(file1, file2, out_filename):
+def compcar(data1, data2, out_filename):
     # Read POSCAR data before (file1) and after (file2) relaxation, provide the movement vectors
     # under out_filename (cartesian coordinates). Output file is organized as columns of data,
     # as in POSCAR except there is a fourth column describing the distance moved by atom during relaxation
     # if Selective Dynamics is off in POSCAR, drift correction might need to be implemented
     # (not supported for now, probably not needed?)
     
-    # Read input files
-    data1 = readfile(file1)
-    data2 = readfile(file2)
-    
-    if data_atomsno(data1, data2):
+    if atomsno(data1, data2):
         print("Number of atoms by species: match!")
         # Execute main compcar routine
-        dcindex = 8 if data_isSeldyn(data1) else 7 # Index of Direct/Cartesian line
-        if not data_isCart(data1):
-            data1 = data_switchCart(data1)
-        if not data_isCart(data2):
-            data2 = data_switchCart(data2)
+        dcindex = 8 if isSeldyn(data1) else 7 # Index of Direct/Cartesian line
+        if not isCart(data1): data1 = switchCart(data1)
+        if not isCart(data2): data2 = switchCart(data2)
         dataout = data2[:7]
         compflag = "Compcar\n"
         dataout += compflag

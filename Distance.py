@@ -1,10 +1,10 @@
 # Distance: Find distance between sites in cell, in quoted Cartesian coordinates
 
 # Andy Paul Chen, Monday, 9 August 2021, Little Italy, Cleveland, Ohio (National Day of Singapore)
+# 2 Nov 2023 I can't believe I am back again
 
 from Cartesian import * # Cartesian coordinates package
-from Coords import * # coordinates query package
-ls = longspace
+from CQuery import * # coordinates query package
 
 def distance(c1, c2):
     # Read Cartesian coordinates 1 and 2, derive distance (in Angstroms)
@@ -12,21 +12,18 @@ def distance(c1, c2):
     dist=math.sqrt((c1[0]-c2[0])**2+(c1[1]-c2[1])**2+(c1[2]-c2[2])**2)
     return dist
 
-def isNearest(in_filename, c):
-    # read file and coordinates c (array of three floats)
+def isNearest(data, c):
+    # read c (array of three floats)
     # return index of closest site to coordinates
     # display distance
-    
-    # Read input file in_filename
-    data = readfile(in_filename)
-    dcindex = 8 if data_isSeldyn(data) else 7 # Index of Direct/Cartesian line
+    dcindex = 8 if isSeldyn(data) else 7 # Index of Direct/Cartesian line
     
     # Switch to Cartesian coordinates
-    if data_isCart(data):
+    if isCart(data):
         print("Coordinates form: Cartesian")
     else:
         print("Coordinates form: Fractional; converting to Cartesian")
-        data=data_switchCart(data)
+        data=switchCart(data)
         
     # Line-by-line analysis
     for line in range(len(data)):
@@ -42,6 +39,6 @@ def isNearest(in_filename, c):
                     mindex = line-dcindex
                     mindist = dist
                     # print("NEW LOW") # test line
-    
+                    
     print("Minimum distance agreement: ", "{:11f}".format(mindist), ", Index #", mindex)
     return mindex

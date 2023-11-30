@@ -20,3 +20,7 @@ Modified AtomSub.py to enable vacancies (I can't believe that is not already imp
 <November 9, 2023>
 Big updates which I forgot to mention on the changelog! More modules were added in 2022 to build cells
 Demo notebooks are being written
+
+<November 30, 2023>
+Added Smiles.py to make unit cells containing an organic molecule
+Demo notebooks are maintained; looking for ways to display unit cells interactively

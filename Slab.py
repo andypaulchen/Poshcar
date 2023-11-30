@@ -11,8 +11,7 @@ def Slab(data, vacuumSize):
     # Create a 2D slab cell with a vacuum region in the c direction
     
     # Convert to Cartesian coordinates
-    if not isCart(data):
-        data = switchCart(data)
+    if not isCart(data): data = switchCart(data)
                
     # Manipulate basis vectors
     a = np.array(re.findall(r"-?\d+\.\d+", data[2].strip()))

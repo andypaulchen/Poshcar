@@ -17,33 +17,27 @@ def switchCart(data):
     num = re.findall(r'\d+', data[atom_number_index].strip())
     snum = sum(list(map(int,num)))
     data = data[:(snum + dcindex + 1)] # whittle the tail
+    B = Basis(data) # Read lattice vectors
     
-    # Read lattice vectors
-    m1 = re.findall(r"-?\d+\.\d+", data[1].strip())
-    mu = float(m1[0])
-    a = re.findall(r"-?\d+\.\d+", data[2].strip())
-    b = re.findall(r"-?\d+\.\d+", data[3].strip())
-    c = re.findall(r"-?\d+\.\d+", data[4].strip())
-    
+    # Announce the conversion operation
+    if isCart(data): print("Converting: Cartesian > Fractional")
+    else: print("Converting: Fractional > Cartesian")
+        
     # Conversion operation
-    if isCart(data):
-        print("Converting: Cartesian > Fractional (not supported in this version)")
-    else:
-        print("Converting: Fractional > Cartesian")
-        for line in range(len(data)):
-            if line > dcindex:
-                dirs = re.findall(r"-?\d+\.\d+", data[line].strip())
-                if isSeldyn(data):
-                    flags = re.findall(r"\w", data[line].strip())[-3:]
-                carts = [0,0,0]
-                for i in range(3):
-                    carts[i] += mu*float(a[i])*float(dirs[0]) + mu*float(b[i])*float(dirs[1]) + mu*float(c[i])*float(dirs[2])
-                data[line] = ls + "{:11f}".format(carts[0]) + ls + "{:11f}".format(carts[1]) + ls + "{:11f}".format(carts[2])
-                if isSeldyn(data):
-                    data[line] += longspace + flags[0] + " " + flags[1] + " " + flags[2]
-                data[line] += "\n"
+    for line in range(len(data)):
+        if line > dcindex:
+            F = np.array(re.findall(r"-?\d+\.\d+", data[line].strip()))
+            # Read seldyn flags for later
+            if isSeldyn(data): flags = re.findall(r"\w", data[line].strip())[-3:]
+            # Convert the line - MATRIX MULTIPLICATION
+            if isCart(data): outv = np.matmul(np.linalg.inv(B.transpose()), F.astype(float)) % 1
+            else: outv = np.matmul(B.transpose(), F.astype(float))
+            # write line
+            data[line] = ls + "{:11f}".format(outv[0]) + ls + "{:11f}".format(outv[1]) + ls + "{:11f}".format(outv[2])
+            # Add seldyn flags back in
+            if isSeldyn(data): data[line] += ls + flags[0] + " " + flags[1] + " " + flags[2]
+            data[line] += "\n"
     
     # Switch the Direct/Cartesian line
-    if isCart(data): data[dcindex] = "Direct\n"
-    else: data[dcindex] = "Cartesian\n"
+    data[dcindex] = "Direct\n" if isCart(data) else "Cartesian\n"
     return data

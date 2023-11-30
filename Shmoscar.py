@@ -42,6 +42,16 @@ def rename(data, newname):
     # Replace header
     data[0] = newname + "\n"
     
+def Basis(data):
+    # Read lattice vectors
+    m1 = re.findall(r"-?\d+\.\d+", data[1].strip())
+    mu = float(m1[0])
+    B = np.zeros((3,3))
+    for i in range(3):
+        basis = np.array(re.findall(r"-?\d+\.\d+", data[i+2].strip()))
+        B[i] = mu * basis.astype(float)
+    return B
+    
 def printvaspdata(data):
     print(">>>>>>>>>>>> START VASPFILE >>>>>>>>>>>>\n")
     print("".join(data))

@@ -11,17 +11,11 @@ def Supercell(data, AA, BB, CC):
         dcindex = 8 if isSeldyn(data) else 7 # Index of Direct/Cartesian line
             
         # Manipulate basis vectors
-        a = np.array(re.findall(r"-?\d+\.\d+", data[2].strip()))
-        b = np.array(re.findall(r"-?\d+\.\d+", data[3].strip()))
-        c = np.array(re.findall(r"-?\d+\.\d+", data[4].strip()))
-        # Convert data to float
-        af = a.astype(np.float)
-        bf = b.astype(np.float)
-        cf = c.astype(np.float)
+        B = Basis(data) # Read lattice vectors
         # Multiply by multipliers
-        aff = np.multiply(af,AA)
-        bff = np.multiply(bf,BB)
-        cff = np.multiply(cf,CC)
+        aff = np.multiply(B[0],AA)
+        bff = np.multiply(B[1],BB)
+        cff = np.multiply(B[2],CC)
         # Rewrite lines
         data[2] = ls + "{:11f}".format(aff[0]) + ls + "{:11f}".format(aff[1]) + ls + "{:11f}".format(aff[2]) + "\n"
         data[3] = ls + "{:11f}".format(bff[0]) + ls + "{:11f}".format(bff[1]) + ls + "{:11f}".format(bff[2]) + "\n"
@@ -59,7 +53,7 @@ def Supercell(data, AA, BB, CC):
             for ii in list(range(AA)):
                 for jj in list(range(BB)):
                     for kk in list(range(CC)):
-                        translate = np.add(np.add(np.multiply(ii,af),np.multiply(jj,bf)),np.multiply(kk,cf))
+                        translate = np.add(np.add(np.multiply(ii,B[0]),np.multiply(jj,B[1])),np.multiply(kk,B[2]))
                         replicate = sub2list.copy()
                         for pp in list(range(len(replicate))):
                             replicate[pp] = np.add(sub2list[pp], translate)

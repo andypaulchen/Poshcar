@@ -14,21 +14,17 @@
 # The big shale rock face at Frankie's Gate is always wet. I am wondering if this is what people call
 # spring water.
 
-from Cartesian import *
+from Distance import *
 
 def atomsno(data1, data2):
-    # Return list of elements and number of elements
-    
-    # Identify atomic species and number of atoms present in cell
     elem1 = re.findall(r'\w+', data1[atom_name_index].strip())
     num1 = re.findall(r'\d+', data1[atom_number_index].strip())
     elem2 = re.findall(r'\w+', data2[atom_name_index].strip())
     num2 = re.findall(r'\d+', data2[atom_number_index].strip())
-    
     return (elem1==elem2) and (num1==num2)
     
 def compcar(data1, data2, out_filename):
-    # Read POSCAR data before (file1) and after (file2) relaxation, provide the movement vectors
+    # Read POSCAR data before (data1) and after (data2) relaxation, provide the movement vectors
     # under out_filename (cartesian coordinates). Output file is organized as columns of data,
     # as in POSCAR except there is a fourth column describing the distance moved by atom during relaxation
     # if Selective Dynamics is off in POSCAR, drift correction might need to be implemented
@@ -40,23 +36,28 @@ def compcar(data1, data2, out_filename):
         dcindex = 8 if isSeldyn(data1) else 7 # Index of Direct/Cartesian line
         if not isCart(data1): data1 = switchCart(data1)
         if not isCart(data2): data2 = switchCart(data2)
-        dataout = data2[:7]
         compflag = "Compcar\n"
-        dataout += compflag
+        dataout = data2[:7] + ["Compcar\n"]
+        
+        # allcoord extraction
+        ns, allcoord = Images(data2)
         
         for line in range(len(data1)):
             if line > dcindex:
+                ind = line - dcindex - 1
                 # Read
-                comp1 = re.findall(r"-?\d+\.\d+", data1[line].strip())
-                comp2 = re.findall(r"-?\d+\.\d+", data2[line].strip())
+                comp1 = np.array(re.findall(r"-?\d+\.\d+", data1[line].strip())).astype(float)
                 # Compare
-                co = [0,0,0]
-                for i in range(3):
-                    co[i] = float(comp2[i]) - float(comp1[i])
-                # Fourth Column
-                ab = math.sqrt(co[0]**2 + co[1]**2 + co[2]**2)
+                for virtual in range(27):
+                    distance_to_virtual = distance(comp1, allcoord[virtual][ind])
+                    if virtual==0: 
+                        min_dist = distance_to_virtual
+                        co = allcoord[virtual][ind] - comp1
+                    if (distance_to_virtual <= min_dist):
+                        min_dist = distance_to_virtual
+                        co = allcoord[virtual][ind] - comp1
                 # Write
-                writeline = ls + "{:11f}".format(co[0]) + ls + "{:11f}".format(co[1]) + ls + "{:11f}".format(co[2]) + ls + "disp (angst.) =" + "{:11f}".format(ab) + "\n"
+                writeline = ls + "{:11f}".format(co[0]) + ls + "{:11f}".format(co[1]) + ls + "{:11f}".format(co[2]) + ls + "disp (angst.) =" + "{:11f}".format(min_dist) + "\n"
                 dataout += writeline
                 
         # write file

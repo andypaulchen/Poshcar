@@ -9,6 +9,11 @@ import itertools
 from operator import add
 from copy import deepcopy
 
+# For display purposes
+import nglview
+from ase.io import read
+from ase.visualize import view
+
 # Global Variables
 atom_name_index = 5
 atom_number_index = 6

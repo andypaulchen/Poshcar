@@ -1,6 +1,7 @@
 <img src="_graphics/POSHCAR-LOGO.png" width="500" align="center">
 
-# Poshcar - VASP POSCAR text editor package
+# Poshcar - VASP POSCAR text editor package<br>
+Author: Andy Paul Chen (MSE, Nanyang Technological University)
 
 ## Introduction
 POSHCAR started as a cabin fever project during the first COVID lockdowns in the United States. It is a simple and lightweight text-based engine for generating and editing files in VASP format, which is one of the simplest and most compact descriptions of a crystal structurescurrently in use. The development follows an organic and modular development model where new functions are written whenever a project-specific need arises, so expect many changes as I hop from project to project.

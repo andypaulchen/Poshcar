@@ -14,7 +14,7 @@ Demo notebooks are organised into 3 parts:<br>
 The output of the demo operations can be seen in the "_ demo" folder.
 
 ## Modules
-Interdependencies of modules are illustrated in the diagram below. The dependence is marked with arrows (dependent -> core)
+Interdependencies of modules are illustrated in the diagram below. The dependence is marked with arrows (dependent -> core)<br>
 <img src="_graphics/modules.png" width="600">
 
 ## Dependencies

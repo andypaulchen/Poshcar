@@ -33,7 +33,7 @@ def Slab(data, vacuumSize):
     newc = np.multiply(cf, ratio)
     
     # Cell reconstruction (add vacuum by multiplying c-vector)
-    data[4] = ls + "{:11f}".format(newc[0]) + ls + "{:11f}".format(newc[1]) + ls + "{:11f}".format(newc[2]) + "\n"
+    data[4] = ls + flpr.format(newc[0]) + ls + flpr.format(newc[1]) + ls + flpr.format(newc[2]) + "\n"
         
     return data
     

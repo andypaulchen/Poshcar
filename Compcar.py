@@ -57,7 +57,7 @@ def compcar(data1, data2, out_filename):
                         min_dist = distance_to_virtual
                         co = allcoord[virtual][ind] - comp1
                 # Write
-                writeline = ls + "{:11f}".format(co[0]) + ls + "{:11f}".format(co[1]) + ls + "{:11f}".format(co[2]) + ls + "disp (angst.) =" + "{:11f}".format(min_dist) + "\n"
+                writeline = ls + flpr.format(co[0]) + ls + flpr.format(co[1]) + ls + flpr.format(co[2]) + ls + "disp (angst.) =" + flpr.format(min_dist) + "\n"
                 dataout += writeline
                 
         # write file

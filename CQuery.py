@@ -16,6 +16,7 @@ from Seldyn import * # selective dynamics package
 
 def CQuery(data, atomno):
     # Identify atomic species and number of atoms present in cell
+    # Returns elem
     elem_list = re.findall(r'\w+', data[atom_name_index].strip())
     num_list = re.findall(r'\d+', data[atom_number_index].strip())
     
@@ -40,3 +41,5 @@ def CQuery(data, atomno):
                 break
             else:
                 modlo -= no_list[j]
+                
+    return elem

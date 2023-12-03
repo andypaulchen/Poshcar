@@ -24,3 +24,8 @@ Demo notebooks are being written
 <November 30, 2023>
 Added Smiles.py to make unit cells containing an organic molecule
 Demo notebooks are maintained; looking for ways to display unit cells interactively
+demo files are organised into a dedicated folder (_demo) for easy access
+
+<December 3, 2023>
+Added Additives.py to add atoms to unit cell and graft ligands onto a slab/QD model
+Added a global float precision variable (flpr) to standardise across the package

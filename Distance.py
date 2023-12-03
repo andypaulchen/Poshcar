@@ -34,7 +34,7 @@ def isNearest(data, c):
                     mindex = i+1
                     mindist = dist
                     
-    print("Minimum distance agreement: ", "{:11f}".format(mindist), ", Index #", mindex)
+    print("Minimum distance agreement: ", flpr.format(mindist), ", Index #", mindex)
     return mindex
 
 # Andy Paul Chen, 2 November 2023

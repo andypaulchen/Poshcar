@@ -50,7 +50,7 @@ def BuildMolecule(smiles):
             ls + ls.join(elemlist) + "\n", ls + ls.join(elemnos) + "\n", "Cartesian\n"]
     for j in MBelems:
         write = MBcoords[j[0]]
-        data.append(ls + "{:11f}".format(write[0]) + ls + "{:11f}".format(write[1]) + ls + "{:11f}".format(write[2]) + "\n")
+        data.append(ls + flpr.format(write[0]) + ls + flpr.format(write[1]) + ls + flpr.format(write[2]) + "\n")
     
     return data
 
@@ -68,21 +68,6 @@ def RotateMolecule(data, axis, angle):
             coords = np.array(re.findall(r"-?\d+\.\d+", data[line].strip()))
             coords = coords.astype(float)
             newc = np.matmul(rotmatrix, coords)
-            data[line] = ls + str(newc[0]) + ls + str(newc[1]) + ls + str(newc[2]) + "\n"
-    return data
-        
-def Translate(data, vector):
-    # Convert to Cartesian coordinates
-    if not isCart(data): data = switchCart(data)
-    if isSeldyn(data): data = SeldynSwitch(data)
-    vector = np.array(vector)
-    vector = vector.astype(float)
-    dcindex = 8 if isSeldyn(data) else 7 # Index of Direct/Cartesian line
-    for line in range(len(data)):
-        if line > dcindex:
-            coords = np.array(re.findall(r"-?\d+\.\d+", data[line].strip()))
-            coords = coords.astype(float)
-            newc = coords + vector
             data[line] = ls + str(newc[0]) + ls + str(newc[1]) + ls + str(newc[2]) + "\n"
     return data
 

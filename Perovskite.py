@@ -8,7 +8,7 @@ Organics = ["FA", "MA"]
 def perovABX3(a, A, B, X):
     if ((A in Periodic_Table) or (A in Organics)) and (B in Periodic_Table) and (X in Periodic_Table):
         data = [A+B+X+"3\n", "1.0\n",
-                ls+"{:11f}".format(a)+"  0.0  0.0\n", ls+"0.0   "+"{:11f}".format(a)+"   0.0\n", ls+"0.0  0.0  "+"{:11f}".format(a)+"\n", 
+                ls+ flpr.format(a) +"  0.0  0.0\n", ls+"0.0   " + flpr.format(a) +"   0.0\n", ls + "0.0  0.0  "+ flpr.format(a) +"\n", 
                 ls+X+ls+B+ls+A+"\n", ls+"3    1    1\n","Direct\n",
                 ls+"0.5  0.0  0.5\n",ls+"0.5  0.5  0.0\n",ls+"0.0  0.5  0.5\n",ls+"0.5  0.5  0.5\n",ls+"0.0  0.0  0.0\n"]
         if (A == "MA"):

@@ -33,11 +33,26 @@ def switchCart(data):
             if isCart(data): outv = np.matmul(np.linalg.inv(B.transpose()), F.astype(float)) % 1
             else: outv = np.matmul(B.transpose(), F.astype(float))
             # write line
-            data[line] = ls + "{:11f}".format(outv[0]) + ls + "{:11f}".format(outv[1]) + ls + "{:11f}".format(outv[2])
+            data[line] = ls + flpr.format(outv[0]) + ls + flpr.format(outv[1]) + ls + flpr.format(outv[2])
             # Add seldyn flags back in
             if isSeldyn(data): data[line] += ls + flags[0] + " " + flags[1] + " " + flags[2]
             data[line] += "\n"
     
     # Switch the Direct/Cartesian line
     data[dcindex] = "Direct\n" if isCart(data) else "Cartesian\n"
+    return data
+
+def Translate(data, vector):
+    # Convert to Cartesian coordinates
+    if not isCart(data): data = switchCart(data)
+    if isSeldyn(data): data = SeldynSwitch(data)
+    vector = np.array(vector)
+    vector = vector.astype(float)
+    dcindex = 8 if isSeldyn(data) else 7 # Index of Direct/Cartesian line
+    for line in range(len(data)):
+        if line > dcindex:
+            coords = np.array(re.findall(r"-?\d+\.\d+", data[line].strip()))
+            coords = coords.astype(float)
+            newc = coords + vector
+            data[line] = ls + str(newc[0]) + ls + str(newc[1]) + ls + str(newc[2]) + "\n"
     return data

@@ -29,7 +29,7 @@ def VacuumQD(data, vacuumSize):
     for line in [2,3,4]:
         inp = [0.0,0.0,0.0]
         inp[line-2] = sep + vacuumSize
-        data[line] = ls + "{:11f}".format(inp[0]) + ls + "{:11f}".format(inp[1]) + ls + "{:11f}".format(inp[2]) + "\n"
+        data[line] = ls + flpr.format(inp[0]) + ls + flpr.format(inp[1]) + ls + flpr.format(inp[2]) + "\n"
         
     return data
     

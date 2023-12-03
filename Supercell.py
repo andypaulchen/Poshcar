@@ -17,9 +17,9 @@ def Supercell(data, AA, BB, CC):
         bff = np.multiply(B[1],BB)
         cff = np.multiply(B[2],CC)
         # Rewrite lines
-        data[2] = ls + "{:11f}".format(aff[0]) + ls + "{:11f}".format(aff[1]) + ls + "{:11f}".format(aff[2]) + "\n"
-        data[3] = ls + "{:11f}".format(bff[0]) + ls + "{:11f}".format(bff[1]) + ls + "{:11f}".format(bff[2]) + "\n"
-        data[4] = ls + "{:11f}".format(cff[0]) + ls + "{:11f}".format(cff[1]) + ls + "{:11f}".format(cff[2]) + "\n"
+        data[2] = ls + flpr.format(aff[0]) + ls + flpr.format(aff[1]) + ls + flpr.format(aff[2]) + "\n"
+        data[3] = ls + flpr.format(bff[0]) + ls + flpr.format(bff[1]) + ls + flpr.format(bff[2]) + "\n"
+        data[4] = ls + flpr.format(cff[0]) + ls + flpr.format(cff[1]) + ls + flpr.format(cff[2]) + "\n"
         
         # Manipulate atom species numbers
         numatoms = np.array(re.findall('\d+', data[6].strip()))
@@ -61,7 +61,7 @@ def Supercell(data, AA, BB, CC):
                         
             for qq in list(range(len(newlist))):
                 ph = newlist[qq]
-                newlist[qq] = ls + "{:11f}".format(ph[0]) + ls + "{:11f}".format(ph[1]) + ls + "{:11f}".format(ph[2]) + "\n"
+                newlist[qq] = ls + flpr.format(ph[0]) + ls + flpr.format(ph[1]) + ls + flpr.format(ph[2]) + "\n"
             header = header + newlist
         return header
     else:

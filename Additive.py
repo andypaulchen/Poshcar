@@ -91,8 +91,8 @@ def Graft(data_base, point_base, data_graft, point_graft):
     # Grafts a set of atoms ("graft" e.g. a molecule) onto a basic set ("base", e.g. slab or QD)
     # This is intended to be implemented to add ligands to a surface
     # Change both cells to CARTESIAN coordinates
-    if not isCart(data_base): SwitchCart(data_base)
-    if not isCart(data_graft): SwitchCart(data_graft)
+    if not isCart(data_base): data_base = switchCart(data_base)
+    if not isCart(data_graft): data_graft = switchCart(data_graft)
     
     # Handle translation
     data_graft = Translate(data_graft, np.array(point_base)-np.array(point_graft))

@@ -15,6 +15,11 @@ def distance(c1, c2):
     b = np.array(c2)
     return np.linalg.norm(a-b)
 
+def vector(c1, c2):
+    a = np.array(c1)
+    b = np.array(c2)
+    return b-a
+
 def isNearest(data, c):
     # read c (array of three floats)
     # return index of closest site to coordinates
@@ -99,25 +104,38 @@ def ElemIndices(data):
 def Matrix_Distances(data):
     # Header extraction
     res, res_indexed = ElemIndices(data)
-    
     # allcoord extraction
     ns, allcoord = Images(data)
     
     # Create distances matrix
     distance_matrix = np.zeros((ns,ns))
+    vectors_matrix = []
     for i in range(ns): # i: from atom
+        vectors_list = []
         for j in range(ns): # j: to atom
+            #print(res_indexed[i], res_indexed[j], i, j)
             for virtual in range(27):
+                vector_to_virtual = vector(allcoord[0][i], allcoord[virtual][j])
                 distance_to_virtual = distance(allcoord[0][i], allcoord[virtual][j])
-                if virtual==0: min_dist = distance_to_virtual
-                if (distance_to_virtual <= min_dist) or (min_dist == 0): min_dist = distance_to_virtual
-                distance_matrix[i][j] = min_dist 
+                #print("\t Image ID: ", virtual, vector_to_virtual, distance_to_virtual)
+                if virtual==0: 
+                    min_dist = distance_to_virtual
+                    min_vec = vector_to_virtual[:]
+                    #print("\t\t min_dist: ", min_dist, "/ min_vec : ", min_vec)
+                if (distance_to_virtual <= min_dist) or (min_dist == 0): 
+                    min_dist = distance_to_virtual
+                    min_vec = vector_to_virtual[:]
+                    #print("\t\t min_dist: ", min_dist, "/ min_vec : ", min_vec)
+            distance_matrix[i][j] = min_dist 
+            vectors_list.append(min_vec)
+        vectors_matrix.append(vectors_list)
+                
     df = pd.DataFrame(distance_matrix, columns=res_indexed, index=res_indexed)
-    return distance_matrix, df
+    return vectors_matrix, distance_matrix, df
 
 def Matrix_Bonding(data, tolerance):
     # Extract distance matrix, atom indices
-    distance_matrix, df = Matrix_Distances(data)
+    vector_matrix, distance_matrix, df = Matrix_Distances(data)
     res, res_indexed = ElemIndices(data)
     ns = len(res_indexed)
     covalent_radius_a = [x/100 for x in covalent_radius_pm]

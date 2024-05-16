@@ -26,5 +26,5 @@ Just download the whole shebang and run your notebooks in the same folder as all
 
 ## Changelog
 You can visit the changelog for a short summary of changes I made over the years. I'm a bit lazy in the documentation, though.<br>
-**Last update:** 1 December 2023
+**Last update:** 16 May 2024
 

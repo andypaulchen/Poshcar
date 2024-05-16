@@ -10,7 +10,7 @@ from operator import add
 from copy import deepcopy
 
 # For display purposes
-import nglview
+#import nglview
 from ase.io import read
 from ase.visualize import view
 

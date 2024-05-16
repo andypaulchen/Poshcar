@@ -17,9 +17,9 @@ def Slab(data, vacuumSize):
     a = np.array(re.findall(r"-?\d+\.\d+", data[2].strip()))
     b = np.array(re.findall(r"-?\d+\.\d+", data[3].strip()))
     c = np.array(re.findall(r"-?\d+\.\d+", data[4].strip()))
-    af = a.astype(np.float)
-    bf = b.astype(np.float)
-    cf = c.astype(np.float)
+    af = a.astype(float)
+    bf = b.astype(float)
+    cf = c.astype(float)
     
     # Norm = a cross b
     n = np.cross(af,bf)
@@ -36,4 +36,26 @@ def Slab(data, vacuumSize):
     data[4] = ls + flpr.format(newc[0]) + ls + flpr.format(newc[1]) + ls + flpr.format(newc[2]) + "\n"
         
     return data
-    
+
+def Yoink(data, n, yoinkdist):
+    # moves a group of atoms (index >= n) in the +c direction in slab model
+
+    # Convert to Cartesian coordinates
+    if not isCart(data): data = switchCart(data)
+    dcindex = 8 if isSeldyn(data) else 7 # Index of Direct/Cartesian line
+
+    for line in range(len(data)):
+        if line >= dcindex+n:
+            F = np.array(re.findall(r"-?\d+\.\d+", data[line].strip()))
+            F = F.astype(float)
+            # Read seldyn flags for later
+            if isSeldyn(data): flags = re.findall(r"\w", data[line].strip())[-3:]
+            # Write line
+            F[2] = F[2] + yoinkdist
+            newline = ls + flpr.format(F[0]) + ls + flpr.format(F[1]) + ls + flpr.format(F[2])
+            # Add seldyn flags back in
+            if isSeldyn(data): newline += ls + flags + "\n"
+            else: newline += "\n"
+            data[line] = newline
+
+    return data

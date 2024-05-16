@@ -1,6 +1,7 @@
 # Supercell: Generates a repeated supercell from a smaller cell
 
 # Andy Paul Chen, Monday 21 February 2022, Singapore
+# 9 May 2024, added the line on "tailmatter" so supercells maintain seldyn / disorder info
 
 from Cartesian import * # SHMOSCAR core package
 
@@ -32,8 +33,8 @@ def Supercell(data, AA, BB, CC):
         data[6] = linenew
         
         # Split POSCAR into header and element-specific segments
-        header = data[:(dcindex+1)]
-        rem = data[(dcindex+1):]
+        header = data[:(dcindex+1)] # entire file except atomic coordinate lines
+        rem = data[(dcindex+1):] # the atomic coordinate lines
         splitlists = []
         for count in numatoms:
             splitlists.append(rem[:count])
@@ -41,11 +42,13 @@ def Supercell(data, AA, BB, CC):
         
         # Extend
         for elem in list(range(len(numatoms))):
-            sublist = splitlists[elem]
+            sublist = splitlists[elem] # list containing all coordinates of particular elem
             sub2list = sublist.copy()
+            tailmatter = sublist.copy()
             # convert to float
             for oo in list(range(len(sublist))):
-                hll = re.findall(r"-?\d+\.\d+", sublist[oo].strip())
+                hll = re.findall(r'\S+', sublist[oo].strip())
+                tailmatter[oo] = ' '.join(hll[3:]) # material beyond the coordinates
                 sub2list[oo] = [float(hll[0]),float(hll[1]),float(hll[2])]
             newlist = []
             
@@ -56,13 +59,12 @@ def Supercell(data, AA, BB, CC):
                         translate = np.add(np.add(np.multiply(ii,B[0]),np.multiply(jj,B[1])),np.multiply(kk,B[2]))
                         replicate = sub2list.copy()
                         for pp in list(range(len(replicate))):
-                            replicate[pp] = np.add(sub2list[pp], translate)
+                            nc = np.add(sub2list[pp], translate) # new coordinates
+                            replicate[pp] = ls + flpr.format(nc[0]) + ls + flpr.format(nc[1]) + ls + flpr.format(nc[2]) + ls + tailmatter[pp] + "\n"
                         newlist.extend(replicate)
-                        
-            for qq in list(range(len(newlist))):
-                ph = newlist[qq]
-                newlist[qq] = ls + flpr.format(ph[0]) + ls + flpr.format(ph[1]) + ls + flpr.format(ph[2]) + "\n"
-            header = header + newlist
+
+            # Integrate head and body matter
+            header += newlist
         return header
     else:
         print("Please input integers as arguments!!\n")

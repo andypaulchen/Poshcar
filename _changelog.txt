@@ -29,3 +29,6 @@ demo files are organised into a dedicated folder (_demo) for easy access
 <December 3, 2023>
 Added Additives.py to add atoms to unit cell and graft ligands onto a slab/QD model
 Added a global float precision variable (flpr) to standardise across the package
+
+<May 15, 2024>
+Building the "Atomic Sudoku" capabilities in Disorder.py

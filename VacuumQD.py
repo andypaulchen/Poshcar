@@ -18,9 +18,9 @@ def VacuumQD(data, vacuumSize):
     a = np.array(re.findall(r"-?\d+\.\d+", data[2].strip()))
     b = np.array(re.findall(r"-?\d+\.\d+", data[3].strip()))
     c = np.array(re.findall(r"-?\d+\.\d+", data[4].strip()))
-    af = a.astype(np.float)
-    bf = b.astype(np.float)
-    cf = c.astype(np.float)
+    af = a.astype(float)
+    bf = b.astype(float)
+    cf = c.astype(float)
     sep = min(distance([0,0,0],af),distance([0,0,0],bf),distance([0,0,0],cf),distance([0,0,0],np.add(af,bf,cf)))
     print("Separation parameter: ",sep)
     

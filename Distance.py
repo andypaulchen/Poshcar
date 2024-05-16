@@ -6,7 +6,12 @@
 from Cartesian import * # Cartesian coordinates package
 from CQuery import * # coordinates query package
 
-covalent_radius_pm = [25, 0, 145, 105, 85, 70, 65, 60, 50, 0, 180, 150, 125, 110, 100, 100, 100, 0, 220, 180, 160, 140, 135, 140, 140, 140, 135, 135, 135, 135, 130, 125, 115, 115, 115, 0, 235, 200, 180, 155, 145, 145, 135, 130, 135, 140, 160, 155, 155, 145, 145, 140, 140, 0, 260, 215, 195, 185, 185, 185, 185, 185, 185, 180, 175, 175, 175, 175, 175, 175, 175, 155, 145, 135, 135, 130, 135, 135, 135, 150, 190, 180, 160, 190, 0, 0, 0, 215, 195, 180, 180, 175, 175, 175, 175, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
+# Cite: https://doi.org/10.1039/B801115J; https://doi.org/10.1002/chem.200800987 (Bk onwards; single bond)
+covalent_radius_pm = [31+5, 28, 128+7, 96+3, 84+3, 76+1, 71+1, 66+2, 57+3, 58, 166+9, 141+7, 121+4, 111+2, 107+3, 105+3, 102+4, 106+10, 203+12, 176+10, 170+7, 160+8, 153+8, 139+5, 161+8, 152+6, 150+7, 124+4, 132+4, 122+4, 122+3, 120+4, 119+4, 120+4, 120+3, 116+4, 220+9, 195+10, 190+7, 175+7, 164+6, 154+5, 147+7, 146+7, 142+7, 139+6, 145+5, 144+9, 142+5, 139+4, 139+5, 138+4, 139+3, 140+9, 244+11, 215+11, 207+8, 204+9, 203+7, 201+6, 199, 198+8, 198+6, 196+6, 194+5, 192+7, 192+7, 189+6, 190+10, 187+8, 175+10, 187+8, 170+8, 162+7, 151+7, 144+4, 141+6, 136+5, 136+6, 132+5, 145+7, 146+5, 148+4, 140+4, 150, 150, 260, 221+2, 215, 206+6, 200, 196+7, 190+1, 187+1, 180+6, 169+3, 168, 168, 165, 167, 173, 176, 161, 157, 149, 143, 141, 134, 129, 128, 121, 122, 136, 143, 162, 175, 165, 157] # add one SD
+
+nobond = [0,2,1,1,0,0,0,0,0,2,1,1,1,0,0,0,0,2,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2]
+# 1: Metal (M-M bond forbidden)
+# 2: Noble gas (any bond forbidden)
 
 def distance(c1, c2):
     # Read Cartesian coordinates 1 and 2, derive distance (in Angstroms)
@@ -52,16 +57,15 @@ def Images(data):
     # Output to a unique 27-cell data structure - list of 27 lists of coordinates
     # Convert to Cartesian coordinates
     if not isCart(data): data = switchCart(data)
-    # Cancel selective dynamics if active
-    if isSeldyn(data): data = SeldynSwitch(data)
-    dcindex = 7
+    # Choose starting file line for coordinates according to site-disorder (selective dynamics) tag
+    dcindex = 8 if isSeldyn(data) else 7
     B = Basis(data) # Read lattice vectors
     
     # Read atomic coordinates
     monocoord = []
     for line in range(len(data)):
         if line > dcindex:
-            dirs = np.array(re.findall(r"-?\d+\.\d+", data[line].strip()))
+            dirs = np.array(re.findall(r"-?\d+\.\d+", data[line].strip()))[:3]
             dirs = dirs.astype(float) # convert from string to float
             monocoord.append(dirs)
     ns = len(monocoord) # Number of atoms in this unit cell
@@ -92,65 +96,141 @@ def Images(data):
     return ns, allcoord
 
 def ElemIndices(data):
-    numatoms = np.array(re.findall('\d+', data[6].strip()))
-    numatoms = numatoms.astype(int) # convert all elements to int
-    elemlist = data[5].split()
-    res = list(itertools.chain.from_iterable(itertools.repeat(elemlist[i], numatoms[i]) for i in range(len(elemlist))))
+    if isSeldyn(data) and data[7].lower() == 'site-disordered structure\n': # site-disordered structures require site-specific symbols
+        print("Site-disordered structure detected!")
+        dcindex = 8
+        spp = []
+        res = []
+        occ = []
+        for line in range(len(data)):
+            if line > dcindex:
+                spp.append(re.sub(r'[^a-zA-Z]', '', np.array(re.findall(r'\S+', data[line].strip()))[3]))
+                res.append(np.array(re.findall(r'\S+', data[line].strip()))[3])
+                occ.append(np.array(re.findall(r'\S+', data[line].strip()))[4])
+    else:
+        numatoms = np.array(re.findall('\d+', data[6].strip()))
+        numatoms = numatoms.astype(int) # convert all elements to int
+        elemlist = data[5].split()
+        spp = list(itertools.chain.from_iterable(itertools.repeat(elemlist[i], numatoms[i]) for i in range(len(elemlist))))
+        res = spp
+        occ = np.ones(len(res))
     res_indexed = deepcopy(res)
     for i in range(len(res)): res_indexed[i] = res[i] + "-" + str(i+1)
-    print("List of atoms: ", res_indexed)
-    return res, res_indexed
+    atomspp = pd.DataFrame({'Species': spp, 'Wyckoff Site': res, 'POSCAR Site': res_indexed, 'Occupancy': np.array(occ).astype(float)})
+    return atomspp
 
 def Matrix_Distances(data):
-    # Header extraction
-    res, res_indexed = ElemIndices(data)
-    # allcoord extraction
-    ns, allcoord = Images(data)
+    atomspp = ElemIndices(data) # Header extraction
+    ns, allcoord = Images(data) # allcoord extraction - ns = number of atoms in cell
     
-    # Create distances matrix
-    distance_matrix = np.zeros((ns,ns))
-    vectors_matrix = []
-    for i in range(ns): # i: from atom
-        vectors_list = []
-        for j in range(ns): # j: to atom
-            #print(res_indexed[i], res_indexed[j], i, j)
-            for virtual in range(27):
-                vector_to_virtual = vector(allcoord[0][i], allcoord[virtual][j])
-                distance_to_virtual = distance(allcoord[0][i], allcoord[virtual][j])
-                #print("\t Image ID: ", virtual, vector_to_virtual, distance_to_virtual)
-                if virtual==0: 
-                    min_dist = distance_to_virtual
-                    min_vec = vector_to_virtual[:]
-                    #print("\t\t min_dist: ", min_dist, "/ min_vec : ", min_vec)
-                if (distance_to_virtual <= min_dist) or (min_dist == 0): 
-                    min_dist = distance_to_virtual
-                    min_vec = vector_to_virtual[:]
-                    #print("\t\t min_dist: ", min_dist, "/ min_vec : ", min_vec)
-            distance_matrix[i][j] = min_dist 
-            vectors_list.append(min_vec)
-        vectors_matrix.append(vectors_list)
+    distance_matrix = np.zeros((27,ns,ns))
+    vectors_matrix = np.zeros((27,ns,ns,3))
+    for i in range(ns): # i: from each atom in unit cell
+        for j in range(ns): # j: to each atom in native/neighbouring cell
+            for virtual in range(27): # for each virtual image
+                vectors_matrix[virtual][i][j] = vector(allcoord[0][i], allcoord[virtual][j])
+                distance_matrix[virtual][i][j] = distance(allcoord[0][i], allcoord[virtual][j])
                 
-    df = pd.DataFrame(distance_matrix, columns=res_indexed, index=res_indexed)
-    return vectors_matrix, distance_matrix, df
+    #df = pd.DataFrame(distance_matrix[0], columns=list(atomspp['POSCAR Site']), index=list(atomspp['POSCAR Site']))
+    #print("Distances between atoms:")
+    #display(df) # Display example (native cell)
+    return vectors_matrix, distance_matrix  
 
 def Matrix_Bonding(data, tolerance):
-    # Extract distance matrix, atom indices
-    vector_matrix, distance_matrix, df = Matrix_Distances(data)
-    res, res_indexed = ElemIndices(data)
-    ns = len(res_indexed)
+    vector_matrix, distance_matrix = Matrix_Distances(data) # Extract distance matrix, atom indices
+    atomspp = ElemIndices(data)
+    ns = len(list(atomspp['POSCAR Site']))
     covalent_radius_a = [x/100 for x in covalent_radius_pm]
-    
     # Retrieve atomic numbers
     atomnos = np.zeros(ns).astype(int)
-    for k in range(ns):
-        atomnos[k] = Periodic_Table.index(res[k])
+    for k in range(ns): atomnos[k] = Periodic_Table.index(list(atomspp['Species'])[k]) # extract atomic numbers
     
     # Construct bonding matrix
     # interatomic distances smaller than (radius(1) + radius(2))*(1+tolerance factor) are bonded
-    bonding_matrix = np.zeros((ns,ns)).astype(int)
+    bonding_matrix = np.zeros((27,ns,ns)).astype(int)
     for i in range(ns): # i: from atom
         for j in range(ns): # j: to atom
-            if distance_matrix[i][j] <= (covalent_radius_a[atomnos[i]]+covalent_radius_a[atomnos[j]])*(tolerance+1):
-                bonding_matrix[i][j] = 1
-    df = pd.DataFrame(bonding_matrix, columns=res_indexed, index=res_indexed)
-    return bonding_matrix, df
+            ei = atomnos[i] # atomic number of species i
+            ej = atomnos[j] # atomic number of species j
+            for virtual in range(27): # for each virtual image
+                if distance_matrix[virtual][i][j] <= (covalent_radius_a[ei]+covalent_radius_a[ej])*(tolerance+1):
+                    if (i != j) and not (nobond[ei]==1 and nobond[ej]==1) and not(nobond[ei]==2 or nobond[ej]==2):
+                        bonding_matrix[virtual][i][j] = 1
+                    
+    #df = pd.DataFrame(bonding_matrix[0], columns=list(atomspp['POSCAR Site']), index=list(atomspp['POSCAR Site']))
+    #print("Bonding between atoms (native cell only):")
+    #display(df) # Display example (native cell)
+    return bonding_matrix
+
+def Crashtest(data, tolerance):
+    # Determine if an atom pair is too close to one another
+    # tolerance is a percentage value (0.0-1.0)
+    tolerance = min(abs(tolerance),1.0)
+    print ("Tolerance: ", tolerance)
+    accept = True
+    
+    vector_matrix, distance_matrix = Matrix_Distances(data) # Extract distance matrix, atom indices
+    atomspp = ElemIndices(data)
+    ns = len(list(atomspp['POSCAR Site']))
+    covalent_radius_a = [x/100 for x in covalent_radius_pm]
+    # Retrieve atomic numbers
+    atomnos = np.zeros(ns).astype(int)
+    for k in range(ns): atomnos[k] = Periodic_Table.index(list(atomspp['Species'])[k]) # extract atomic numbers
+    
+    # Construct bonding matrix
+    # interatomic distances smaller than (radius(1) + radius(2))*(1+tolerance factor) are bonded
+    crashing_matrix = np.zeros((ns,ns)).astype(int)
+    
+    for i in range(ns): # i: from atom
+        for j in range(ns): # j: to atom
+            ei = atomnos[i] # atomic number of species i
+            ej = atomnos[j] # atomic number of species j
+            for virtual in range(27): # for each virtual image
+                if distance_matrix[virtual][i][j] <= (covalent_radius_a[ei]+covalent_radius_a[ej])*(1-tolerance):
+                    if (i != j):
+                        crashing_matrix[i][j] = 1
+                        accept = False
+                    
+    df = pd.DataFrame(crashing_matrix, columns=list(atomspp['POSCAR Site']), index=list(atomspp['POSCAR Site']))
+    if accept == False: 
+        print("Crashing between atoms:")
+        display(df) # Display example
+    else: print("No crashing between atoms!")
+    return accept
+
+def Matrix_Bonding_Average(data, mode, tolerance):
+    # Average bonding matrix, can also be used for site-disordered stuff
+    # mode: string input, first letter for [s]ite classification or [e]lement species classification
+    atomspp = ElemIndices(data) # What atoms are in here
+    ns = len(list(atomspp['POSCAR Site'])) # How many atoms in cell
+    weights = atomspp['Occupancy']
+    bms = Matrix_Bonding(data, tolerance).sum(0)
+
+    # Mode 
+    classification = mode[0].upper()
+    if classification == 'E': arrayclass = np.array(atomspp['Species'])
+    elif classification == 'S': arrayclass = np.array(atomspp['Wyckoff Site'])
+    else: 
+        print("Invalid mode -- please enter 'site' or 'element! Defaulting to element species classification...\n")
+        arrayclass = np.array(atomspp['Species'])
+    
+    runiq, runiq_index, runiq_count = np.unique(arrayclass, return_counts=True, return_index=True)
+    runiq = runiq[np.argsort(runiq_index)]
+    runiq_count = runiq_count[np.argsort(runiq_index)] # preserve order
+    us = len(runiq) # How many unique species in cell
+    bme = np.zeros([us, us]) # to fill in
+    
+    res_partition = np.resize(np.cumsum(runiq_count),runiq_count.size -1) # partition plan of array
+    bm_split_by_rows = np.split(bms,res_partition,axis=0)
+    weights_split = np.split(weights,res_partition)
+    for iu in range(us): # rows split
+        bm_split_by_columns = np.split(bm_split_by_rows[iu],res_partition,axis=1)
+        for ju in range(us):
+            summed_column = np.dot(bm_split_by_columns[ju],weights_split[ju])
+            bme[iu][ju] = np.average(summed_column, weights = weights_split[iu])
+    
+    # Display and return bme
+    df = pd.DataFrame(bme, columns=runiq, index=runiq)
+    print("Local coordination behaviour:")
+    display(df) # Display example (native cell)
+    return runiq, bme

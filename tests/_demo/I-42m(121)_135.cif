@@ -1,0 +1,49 @@
+
+#======================================================================
+# CRYSTAL DATA
+#----------------------------------------------------------------------
+data_VESTA_phase_1
+
+_chemical_name_common                  'New structure'
+_cell_length_a                         6.194400
+_cell_length_b                         6.194400
+_cell_length_c                         12.415700
+_cell_angle_alpha                      90.000000
+_cell_angle_beta                       90.000000
+_cell_angle_gamma                      90.000000
+_cell_volume                           476.397724
+_space_group_name_H-M_alt              'I -4 2 m'
+_space_group_IT_number                 121
+
+loop_
+_space_group_symop_operation_xyz
+   'x, y, z'
+   '-x, -y, z'
+   'y, -x, -z'
+   '-y, x, -z'
+   '-x, y, -z'
+   'x, -y, -z'
+   '-y, -x, z'
+   'y, x, z'
+   'x+1/2, y+1/2, z+1/2'
+   '-x+1/2, -y+1/2, z+1/2'
+   'y+1/2, -x+1/2, -z+1/2'
+   '-y+1/2, x+1/2, -z+1/2'
+   '-x+1/2, y+1/2, -z+1/2'
+   'x+1/2, -y+1/2, -z+1/2'
+   '-y+1/2, -x+1/2, z+1/2'
+   'y+1/2, x+1/2, z+1/2'
+
+loop_
+   _atom_site_label
+   _atom_site_occupancy
+   _atom_site_fract_x
+   _atom_site_fract_y
+   _atom_site_fract_z
+   _atom_site_adp_type
+   _atom_site_U_iso_or_equiv
+   _atom_site_type_symbol
+   Cu         0.8000  0.000000     0.000000     0.000000    Uiso  0.050000 Cu
+   Te         1.0     0.250000     0.750000     0.125000    Uiso  0.050000 Te
+   In         0.4000  0.500000     0.500000     0.000000    Uiso  0.050000 In
+   In         1.0     0.000000     0.500000     0.250000    Uiso  0.050000 In

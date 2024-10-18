@@ -2,10 +2,11 @@
 # Distributed under the terms of the MIT License.
 
 """
-POSHCAR
+Poshcar - VASP POSCAR text editor package
 """
 
 from .main import *
+from .ElemSwitch import *
 
 __copyright__  = "Andy Paul Chen"
 __version__    =  "1.0.0"

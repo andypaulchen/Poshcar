@@ -8,6 +8,8 @@ setup(
         "ase",
         "pyvis",
         "rdkit",
-        "scipy"
+        "scipy",
+        "pymatgen",
+        "chgnet"
     ],
 )

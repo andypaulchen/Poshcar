@@ -6,7 +6,7 @@ Poshcar - VASP POSCAR text editor package
 """
 
 from .main import *
-from .ElemSwitch import ElemSwitch, ElemSet
+from .elemswitch import *
 
 __copyright__  = "Andy Paul Chen"
 __version__    =  "1.0.0"

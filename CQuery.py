@@ -14,7 +14,7 @@
 
 from Seldyn import * # selective dynamics package
 
-def CQuery(data, atomno):
+def CQuery(data, atomno, verbose = True):
     # Identify atomic species and number of atoms present in cell
     # Returns elem
     elem_list = re.findall(r'\w+', data[atom_name_index].strip())
@@ -35,11 +35,13 @@ def CQuery(data, atomno):
             if modlo <= no_list[j]:
                 # ID element
                 elem = elem_list[j]
-                print("Atom ID: ", atomno, " / ", elem, modlo)
+                if verbose: print("Atom ID: ", atomno, " / ", elem, modlo)
                 # Print coordinates
-                print("Coordinates: ", data[atomno+addindex])
+                if verbose: print("Coordinates: ", data[atomno+addindex])
+                coords = data[atomno+addindex].split()
+                coords = [float(part) for part in coords]
                 break
             else:
                 modlo -= no_list[j]
                 
-    return elem
+    return elem, coords

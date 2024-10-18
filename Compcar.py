@@ -34,8 +34,8 @@ def compcar(data1, data2, out_filename):
         print("Number of atoms by species: match!")
         # Execute main compcar routine
         dcindex = 8 if isSeldyn(data1) else 7 # Index of Direct/Cartesian line
-        if not isCart(data1): data1 = switchCart(data1)
-        if not isCart(data2): data2 = switchCart(data2)
+        if not isCart(data1): data1 = switchCart(data1, verbose = False)
+        if not isCart(data2): data2 = switchCart(data2, verbose = False)
         compflag = "Compcar\n"
         dataout = data2[:7] + ["Compcar\n"]
         

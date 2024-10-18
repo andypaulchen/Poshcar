@@ -11,7 +11,7 @@ def isCart(data):
     if data[dcindex][0].upper() == 'C' or data[dcindex][0].upper() == 'K':
         return True
         
-def switchCart(data):
+def switchCart(data, verbose = True):
     # Switches coordinates between Cartesian and Direct!
     dcindex = 8 if isSeldyn(data) else 7 # Index of Direct/Cartesian line
     num = re.findall(r'\d+', data[atom_number_index].strip())
@@ -20,8 +20,9 @@ def switchCart(data):
     B = Basis(data) # Read lattice vectors
     
     # Announce the conversion operation
-    if isCart(data): print("Converting: Cartesian > Fractional")
-    else: print("Converting: Fractional > Cartesian")
+    if verbose:
+        if isCart(data): print("Converting: Cartesian > Fractional")
+        else: print("Converting: Fractional > Cartesian")
         
     # Conversion operation
     for line in range(len(data)):

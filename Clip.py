@@ -12,7 +12,7 @@ def Clip(data, greaterorsmallerthan, cutoff):
     dcindex = 8 if isSeldyn(data) else 7
     
     # Change everything into Cartesian
-    if not isCart(data): data = switchCart(data)
+    if not isCart(data): data = switchCart(data, verbose = False)
     
     # Find all atoms of index [#] to be deleted into deletelist
     trackindex = 0
@@ -33,5 +33,5 @@ def Clip(data, greaterorsmallerthan, cutoff):
     deletelist.sort(reverse = True)
     
     # Remove the atoms
-    data = AtomSub(data, "vac", deletelist)
+    data = AtomSub(data, "vac", deletelist, verbose = False)
     return data

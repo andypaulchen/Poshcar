@@ -1,0 +1,6 @@
+ase
+pyvis
+rdkit
+scipy
+pymatgen
+chgnet

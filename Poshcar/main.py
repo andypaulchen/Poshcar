@@ -1,4 +1,4 @@
-# Shmoscar: Core module of SHMOSCAR
+# main.py: Core module of POSHCAR
 # This is the place I chuck my global variables and most heavily-used functions
 
 import re # impt: read string of numbers

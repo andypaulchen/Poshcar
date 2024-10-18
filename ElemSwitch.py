@@ -78,10 +78,10 @@ def ElemSwitch(data):
 # at the target in the basement. I meet my goals also like the arrows meeting the target at the 
 # basement, in other words badly.
         
-def ElemSet(data, pos, Sp2):
+def ElemSet(data, pos, Sp2, verbose = True):
     # Take in_filename, change all atom of species in ordinal position pos (1,2,3...etc) to Sp2
     # Print Input file information
-    print("List of elements:"+ longspace + data[atom_name_index].strip())
+    if verbose: print("List of elements:"+ longspace + data[atom_name_index].strip())
     
     # Identify atomic species
     elem_list = re.findall(r'\w+', data[atom_name_index].strip())
@@ -95,7 +95,7 @@ def ElemSet(data, pos, Sp2):
             for k in range(len(elem_list)):
                 data[atom_name_index] += (longspace + elem_list[k])
             data[atom_name_index] += "\n"
-            print("New Element Order:", longspace, data[atom_name_index].strip())
+            if verbose: print("New Element Order:", longspace, data[atom_name_index].strip())
             return data
         else: print("ERROR: Invalid element!")
     else: print("ERROR: Invalid parameter #2!")

@@ -32,11 +32,12 @@
 
 from Seldyn import * # selective dynamics package
 
-def AtomSub(data, dopant_name, subatoms):
+def AtomSub(data, dopant_name, subatoms, verbose = True):
     # Print Input file information
-    print("List of elements (clean cell):"+ longspace + data[atom_name_index].strip())
-    print("Number of atoms per element:" + longspace + data[atom_number_index].strip())
-    print(horizont)
+    if verbose:
+        print("List of elements (clean cell):"+ longspace + data[atom_name_index].strip())
+        print("Number of atoms per element:" + longspace + data[atom_number_index].strip())
+        print(horizont)
     
     # In the case of Selective Dynamics, the first coordinates are on line 8
     # Otherwise, it's 7
@@ -71,13 +72,13 @@ def AtomSub(data, dopant_name, subatoms):
     # Append number of dopant atom to list of numbers
     if dopant_name not in Periodic_Table: dopant_name = ""
     data[atom_name_index] = ls + data[atom_name_index].strip() + ls + dopant_name + "\n"
-    print("List of elements (with dopant):", data[atom_name_index].strip())
+    if verbose: print("List of elements (with dopant):", data[atom_name_index].strip())
     data[atom_number_index] = longspace
     for m in range(len(num_list)):
         data[atom_number_index] = data[atom_number_index] + str(num_list[m]) + ls
     if dopant_name not in Periodic_Table: dopant_number = ""
     else: dopant_number = str(len(subatoms))
     data[atom_number_index] = data[atom_number_index] + dopant_number + "\n"
-    print("Number of atoms per element: " + data[atom_number_index].strip())
+    if verbose: print("Number of atoms per element: " + data[atom_number_index].strip())
     
     return data

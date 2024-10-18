@@ -6,6 +6,7 @@
 from Distance import * # Distances package
 import networkx as nx # We are using networkx for graph analytics!!!!!
 from pyvis.network import Network as net
+from IPython.display import display, HTML
 
 Image_colors = ['black', 'blue', 'blue', 'green', 'cyan', 'darkcyan', 'green', 'darkcyan', 'cyan', 'red', 'magenta', 'darkmagenta', 'yellow', 'peru', 'sienna', 'gold', 'dimgrey', 'rosybrown', 'red', 'darkmagenta', 'magenta', 'gold', 'rosybrown', 'dimgrey', 'yellow', 'sienna', 'peru']
 
@@ -16,9 +17,10 @@ Image_labels = ['', 'c', 'c'+bar, 'b', 'bc', 'bc'+bar, 'b'+bar, 'b'+bar+'c', 'b'
 def isConnected(data, tolerance):
     # Input crystal structure and tolerance, returns sets of connected components
     # Collect headers
-    res, res_indexed = ElemIndices(data)
+    atomspp = ElemIndices(data)
+    res_indexed = atomspp['POSCAR Site']
     ns = len(res_indexed)
-    bm = Matrix_Bonding(data, tolerance) # get bonding matrices
+    bm = Matrix_Bonding(data, tolerance, verbose = False) # get bonding matrices
     
     G = nx.MultiGraph()
     for virtual in range(27):
@@ -34,7 +36,7 @@ def isConnected(data, tolerance):
 
 def Coordination_Graph(data, tolerance):
     # Return graph of coordinations, averaged over element
-    runiq, bme = Matrix_Bonding_Average(data, 'element', tolerance) # get bonding matrices
+    runiq, bme = Matrix_Bonding_Average(data, 'element', tolerance, verbose = True) # get bonding matrices
     
     G = nx.MultiDiGraph()
     for i in range(len(runiq)):
@@ -43,3 +45,28 @@ def Coordination_Graph(data, tolerance):
                 G.add_edge(runiq[i], runiq[j], weight=bme[i][j], label=str(bme[i][j]))
     
     return G
+
+def Draw_Graph(G, output = "untitled_graph.html"):
+    # Draws a graph
+    netcryst = net(notebook=True, directed=True, cdn_resources = 'in_line')
+    netcryst.from_nx(G)
+    netcryst.set_options('''
+    var options = {
+    "edges": {
+    "arrowStrikethrough": false,
+    "color": {
+    "inherit": false
+    },
+    "font": {
+    "size": 10,
+    "align": "top"
+    },
+    "smooth": true
+    }
+    }
+    ''')
+
+    html = netcryst.generate_html()
+    with open(output, mode='w', encoding='utf-8') as fp:
+        fp.write(html)
+    display(HTML(html))

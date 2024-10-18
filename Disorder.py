@@ -8,125 +8,139 @@
 from Supercell import *
 from AtomSub import *
 from Distance import *
-import ase.io.cif as asecif
-import ase.io.vasp as asevasp
-from ase.geometry import get_duplicate_atoms
+from Additive import *
 import random
 import os
 
-def cif2vasp_occ(ciffile):
-    # Reads in a .cif file, output .vasp file with fractional occupancy information which mimics a Selective Dynamics file
-    filename_header = ciffile[:-4] #output to same place as input
-    cifdata = asecif.read_cif(ciffile, fractional_occupancies = True)
+import ase.io.cif as asecif
+from chgnet.model.model import CHGNet
+from chgnet.model import StructOptimizer
+from pymatgen.core import Structure
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.transformations.standard_transformations import OrderDisorderedStructureTransformation
 
-    #print(cifdata.__dict__['info'])
+def cif2vasp_occ(ciffile, verbose = True):
+    # Reads in a .cif file, output .vasp file with fractional occupancy information which mimics a Selective Dynamics fileexit
+    
+    filename_header = ciffile[:-4] #output to same place as input
+    cifdata = asecif.read_cif(ciffile, index=-1, fractional_occupancies = True)
+    
+    #print(cifdata.__dict__['info']); cif data extractions
     occdict = cifdata.__dict__.get('info').get('occupancy') # dictionary containing species and occupancies
     sites = cifdata.__dict__.get('arrays').get('spacegroup_kinds') # array of sites, in sequence
+    positions = cifdata.__dict__.get('arrays').get('positions') # array of site coordinates
 
     # write a vasp file here with ase, then read from it (yeah man that's dumb I know)
     cifdata.write(filename_header+'.vasp', format = 'vasp')
     vaspdata = readfile(filename_header+'.vasp')
     vaspdata.insert(7, "Site-Disordered Structure\n") # it starts with 'S' so VESTA can read this (so lame)
+    vaspdata = vaspdata[:10] # keep header + 1 atom
+    vaspdata[5] = " Ph \n"
+    vaspdata[6] = "  1 \n" # Placeholder atom "Ph"
 
-    for line in range(len(vaspdata)):
-        if line > 8: 
-            ordinal = line-9
-            site_id = str(sites[ordinal]) # Which site the atom is on
-            site_spp_occ = occdict.get(site_id) # key is species, item is occupancy
-            spp = list(site_spp_occ.keys())[0]
-            occ = site_spp_occ.get(spp)
-            vaspdata[line] = vaspdata[line].rstrip() + ls + (spp+site_id).ljust(5) + "  " + str(occ) + "\n"
-
+    cursor = 9
+    for i in occdict:
+        if int(i) in sites: j = int(i)
+        else: j = max([x for x in sites if x < int(i)], default=None) 
+        k = np.where(sites == j)[0][0] # extract coordinates
+        toadd = next(iter(occdict[i].items())) # extract atoms
+        vaspdata = AddAtom(vaspdata, toadd[0], positions[k], verbose = False)
+        cursor += 1
+        vaspdata[cursor] = vaspdata[cursor].rstrip() + ls + (toadd[0]+str(j)).ljust(5) + "  " + str(toadd[1]) + "\n"
+    
+    vaspdata = RemoveAtom(vaspdata, [1], verbose = False) # Remove the placeholder atom
     # write data to vasp file again
-    writefile(vaspdata, filename_header+'.vasp')
+    writefile(vaspdata, filename_header+'.vasp', verbose)
+    return vaspdata
 
-def composition(data):
+def composition(data, verbose = True):
     # Return vector containing fractional 
-    df = ElemIndices(data)
+    df = ElemIndices(data, verbose)
     total = df['Occupancy'].sum()
     sum_by_spp = df.groupby('Species')['Occupancy'].sum()
     proportions = sum_by_spp/total
-    display(proportions)
+    if verbose: display(proportions)
     return proportions.values
 
-def disordered_to_virtual(data):
-    # Random fill of atomic sites
-    # Delete lines where occupancy is less than 1, and a dice-roll has decreed that it is removed
-    
-    crash_threshold = 0.4 # Set the threshold here!
-    # Initializations
-    conformerID = 0 # Constructing the ConformerID with the binary method
-    cid_place = 0
-    backline = len(data)-1
-    
-    while backline > 8: 
-        occ = float(re.findall(r'\S+', data[backline].strip())[4]) # probability atom stays
-        if occ < 1.0:
-            if random.random() > occ: data = AtomSub(data,"vac",[backline-8]) # delete atom
-            else: conformerID += 2**cid_place
-            cid_place += 1
-        backline -= 1
-        
-    # Check for crashing atoms, target composition
-    if Crashtest(data, crash_threshold): 
-        print("Cell accepted.")
-        crashtest_passed = True
-        data = SeldynSwitch(data) # Switch for virtual cell
-    else: 
-        print("Rejected: Atoms too close together.")
-        crashtest_passed = False
-    return data, conformerID, crashtest_passed
 
-def VirtualLibrary(vaspfile, header, N, supercellsize):
-    # Source vaspfile is required to be a "disordered" vasp file
-    # Generate a list of N virtual cells (text line-list format)
-    # Check for target composition
-    # Supercellsize = array with 3 integers
-    # header = folder name
+def VirtualLibrary(path, target, pauling_weight = 1, bond_threshold = 0.1, structure_opt = True, verbose = True):
+    # Source: a folder (path) already populated by virtual cells from Supercell software
+    # No further filling required!!
+    # Check for target composition (target is compulsory)
+    # header = folder name or path
     
+    idlist   = [] # header, for reference
     datalist = [] # init array
-    cidlist = [] # conformerID list
-    crashlist = [] # pass/fail grade for crashtest
-    complist = [] # composition-distance
-    data = readfile(vaspfile)
-    try: os.mkdir('_operations/'+header)
-    except: print('Folder already created')
-    
-    if isSeldyn(data) and data[7].lower() == 'site-disordered structure\n': 
-        # Set up conformerID and related conditions related to combinatorics
-        atomoccs = ElemIndices(data)
-        original_comp = composition(data) # register real compositional data
-        partial_sites = (atomoccs['Occupancy'] < 1.0).sum()
-        print("Number of partially-occupied sites: ", partial_sites)
-        total_possible_conform = 2**partial_sites
-        print("Number of possible conformers: ", total_possible_conform)
-        N1 = min(N, total_possible_conform) # limit to the smaller number of conformers
-    
-        scz = supercellsize
-        sc = Supercell(data, scz[0], scz[1], scz[2]) # supercell
-        i = 0 # initialize
-        while i < N1:
-            print("i=",i)
-            sci = sc.copy()
-            sci, cid, crash = disordered_to_virtual(sci) # manipulate a copy of the supercell
-            if cid not in cidlist:
-                datalist.append(sci)
-                cidlist.append(cid)
-                crashlist.append(crash)
-                virtual_comp = composition(sci)
-                try: compdist = distance(original_comp, virtual_comp)
-                except: 
-                    print("Elements mismatch! (possibly all atoms of certain species removed?")
-                    compdist = "err"
-                complist.append(compdist)
-                writefile(sci, '_operations/'+header+'/'+str(cid)+'.vasp')
-                i = i + 1
-        summary = pd.DataFrame({'ConformerID': cidlist, 'Passed Crashtest': crashlist, 'CompDist': complist})
-        summary.to_csv('_operations/'+header+'/VirtualLibrary.csv')
-        display(summary)
-        print("Summary of results written to _operations/VirtualLibrary.csv")
-        return datalist
-    else: print("This is not a site-disordered structure, dude!\n")
-                    
+    complist = [] # composition
+    cdlist   = [] # distance from target composition (Frobenius)
+    bondlist = [] # bonding matrices
+    bdlist1  = []
+    bdlist2  = []
+    bdlist   = [] # distance from target bonding profile
+    E_list   = [] # chgnet total energies
 
-    
+    # Load CHGNET bc we defo need to use this
+    chgnet = CHGNet.load()
+    relaxer = StructOptimizer()
+
+    # Take care of the target file (could be source file input to Supercell)
+    # or maybe even a user-defined cell for correlated disorder
+    runiq, bme_targ, unav = Matrix_Bonding_Average(target, 'element', bond_threshold, verbose = True)
+    original_comp = composition(target, verbose) # register real compositional data
+
+    # Iterate over all .cif files in folder
+    for ciffile in os.listdir(path):
+        if ciffile.endswith('.cif'):
+            filename_header = ciffile[:-4] #output to same place as input
+            idlist.append(filename_header)
+
+            # Structural relaxation (if any)
+            chgnet_structure = Structure.from_file(path+ciffile)
+            # relagsation
+            if structure_opt:
+                result = relaxer.relax(chgnet_structure, verbose=False)
+                print(f"\nCHGNet took {len(result['trajectory'])} steps. Relaxed structure:")
+                final_structure = result['final_structure']
+            else: final_structure = chgnet_structure
+
+            # Convert cif to vasp for our matrices
+            #final_structure.to(filename = path+filename_header+"_final.vasp", fmt = "poscar")
+            chgnet_structure.to(filename = path+filename_header+".vasp", fmt = "poscar")
+            #virtual = readfile(path+filename_header+"_final.vasp")
+            virtual = readfile(path+filename_header+".vasp")
+            if verbose: printvaspdata(virtual)
+            runiq, bme, unaverageness = Matrix_Bonding_Average(virtual, 'element', bond_threshold, bme_correlated = bme_targ, verbose = verbose)
+
+            # append to datalist
+            datalist.append(virtual)
+
+            # append to bond lists
+            bondlist.append(bme)
+            # bonding matrix distance = difference in bme + Pauling-5 penalty
+            bd_metric = np.linalg.norm(bme - bme_targ, 'fro') 
+            print("Bonding matrix distance: ", bd_metric, " Unaverageness: ", unaverageness)
+            bdlist1.append(bd_metric)
+            bdlist2.append(unaverageness)
+            bdlist.append(bd_metric + pauling_weight*unaverageness)
+            #bdlist.append(bd_metric)
+
+            # append to composition lists
+            virtual_comp = composition(virtual, verbose)
+            complist.append(virtual_comp)
+            try: compdist = distance(original_comp, virtual_comp)
+            except: 
+                print("Elements mismatch! (possibly all atoms of certain species removed?")
+                compdist = "err" # this is not very probable just because of compounded probabilities!
+            cdlist.append(compdist)
+
+            # CHGNET total energy
+            prediction = chgnet.predict_structure(final_structure)
+            totalenergy = float(prediction['e'])
+            if verbose: print(f"CHGNet-predicted energy (eV/atom)):\n{totalenergy}\n")
+            E_list.append(totalenergy)
+
+    summary = pd.DataFrame({'Name': idlist, 'BondingProfile': bondlist, 'MatrixDistance' : bdlist1, 'Unaverageness' : bdlist2, 'BondDiff' : bdlist, 'Composition': complist, 'CompDiff': cdlist, 'FormationEnergy': E_list})
+    summary.to_csv(path+'/VirtualLibrary.csv')
+    display(summary)
+    print("Summary of results written to _operations/VirtualLibrary.csv")
+    return datalist, summary

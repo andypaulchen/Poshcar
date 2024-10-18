@@ -12,6 +12,8 @@
 
 from Poshcar import * # selective dynamics package
 
+__all__ = ['ElemSwitch', 'ElemSet']
+
 def ElemSwitch(data):
     # Switch elements based on input prompt
     # Print Input file information

@@ -1,4 +1,4 @@
-<img src="_graphics/POSHCAR-LOGO.png" width="500" align="center">
+<img src="graphics/POSHCAR-LOGO.png" width="500" align="center">
 
 # Poshcar - VASP POSCAR text editor package<br>
 Author: Andy Paul Chen (MSE, Nanyang Technological University)
@@ -16,7 +16,7 @@ The output of the demo operations can be seen in the "_ demo" folder.
 
 ## Modules
 Interdependencies of modules are illustrated in the diagram below. The dependence is marked with arrows (dependent -> core)<br>
-<img src="_graphics/modules.png" width="600" align="center">
+<img src="graphics/modules.png" width="600" align="center">
 
 ## Dependencies
 re, math, numpy, pandas, itertools, operator, copy, nglview, ase

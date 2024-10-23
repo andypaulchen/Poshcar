@@ -3,7 +3,7 @@
 # 2 February 2024: I popped the question to Sophia last friday at Sungei Buloh. 
 # The witnesses were 30 or so migratory birds at the tidal pools. Everyone was very happy that day
 
-from Distance import * # Distances package
+from poshcar.distance import * # Distances package
 import networkx as nx # We are using networkx for graph analytics!!!!!
 from pyvis.network import Network as net
 from IPython.display import display, HTML
@@ -17,10 +17,10 @@ Image_labels = ['', 'c', 'c'+bar, 'b', 'bc', 'bc'+bar, 'b'+bar, 'b'+bar+'c', 'b'
 def isConnected(data, tolerance):
     # Input crystal structure and tolerance, returns sets of connected components
     # Collect headers
-    atomspp = ElemIndices(data)
+    atomspp = elemindices(data)
     res_indexed = atomspp['POSCAR Site']
     ns = len(res_indexed)
-    bm = Matrix_Bonding(data, tolerance, verbose = False) # get bonding matrices
+    bm = matrix_bonding(data, tolerance, verbose = False) # get bonding matrices
     
     G = nx.MultiGraph()
     for virtual in range(27):
@@ -36,7 +36,7 @@ def isConnected(data, tolerance):
 
 def Coordination_Graph(data, tolerance):
     # Return graph of coordinations, averaged over element
-    runiq, bme = Matrix_Bonding_Average(data, 'element', tolerance, verbose = True) # get bonding matrices
+    runiq, bme = matrix_bonding_average(data, 'element', tolerance, verbose = True) # get bonding matrices
     
     G = nx.MultiDiGraph()
     for i in range(len(runiq)):

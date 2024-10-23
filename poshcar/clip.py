@@ -1,18 +1,18 @@
-# Clip: Deletes atoms beyond/before a certain coordinate value
-# (uses AtomSub to delete atoms)
+# clip: Deletes atoms beyond/before a certain coordinate value
+# (uses atomsub to delete atoms)
 
 # Andy Paul Chen, Monday 9 May 2022
 
-from AtomSub import *
-from Cartesian import *
+from poshcar.atomsub import *
+from poshcar.cartesian import *
 
-def Clip(data, greaterorsmallerthan, cutoff):    
+def clip(data, greaterorsmallerthan, cutoff):    
     # In the case of Selective Dynamics, the first coordinates are on line 8
     # Otherwise, it's 7
-    dcindex = 8 if isSeldyn(data) else 7
+    dcindex = 8 if is_seldyn(data) else 7
     
     # Change everything into Cartesian
-    if not isCart(data): data = switchCart(data, verbose = False)
+    if not is_cart(data): data = switchcart(data, verbose = False)
     
     # Find all atoms of index [#] to be deleted into deletelist
     trackindex = 0
@@ -33,5 +33,5 @@ def Clip(data, greaterorsmallerthan, cutoff):
     deletelist.sort(reverse = True)
     
     # Remove the atoms
-    data = AtomSub(data, "vac", deletelist, verbose = False)
+    data = atomsub(data, "vac", deletelist, verbose = False)
     return data

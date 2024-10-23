@@ -1,4 +1,4 @@
-# AtomSub: Algorithm to perform substitutional defects by doping (multiple atoms or a vacancy)
+# atomsub: Algorithm to perform substitutional defects by doping (multiple atoms or a vacancy)
 
 # (Atomsub 1 description):
 # [This algorithm on the VASP POTCAR file creates a substitutional defect where a dopant atom occupied
@@ -30,9 +30,9 @@
 # I split up the function to a data_-headed thingimmabob. What's new in my life?
 # I now have a Krav Maga practioner certificate, for what it's worth
 
-from Seldyn import * # selective dynamics package
+from poshcar.seldyn import * # selective dynamics package
 
-def AtomSub(data, dopant_name, subatoms, verbose = True):
+def atomsub(data, dopant_name, subatoms, verbose = True):
     # Print Input file information
     if verbose:
         print("List of elements (clean cell):"+ longspace + data[atom_name_index].strip())
@@ -41,7 +41,7 @@ def AtomSub(data, dopant_name, subatoms, verbose = True):
     
     # In the case of Selective Dynamics, the first coordinates are on line 8
     # Otherwise, it's 7
-    addindex = 8 if isSeldyn(data) else 7
+    addindex = 8 if is_seldyn(data) else 7
     
     # Read string of element symbols and number of atoms per element
     elem_list = re.findall(r'\w+', data[atom_name_index].strip())

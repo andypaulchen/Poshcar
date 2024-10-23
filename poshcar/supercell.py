@@ -1,18 +1,18 @@
-# Supercell: Generates a repeated supercell from a smaller cell
+# supercell: Generates a repeated supercell from a smaller cell
 
 # Andy Paul Chen, Monday 21 February 2022, Singapore
 # 9 May 2024, added the line on "tailmatter" so supercells maintain seldyn / disorder info
 
-from Cartesian import * # SHMOSCAR core package
+from poshcar.cartesian import * 
 
-def Supercell(data, AA, BB, CC):
+def supercell(data, AA, BB, CC):
     if (type(AA) is int) and (type(BB) is int) and (type(CC) is int):
         # Convert to Cartesian coordinates
-        if not isCart(data): data = switchCart(data)
-        dcindex = 8 if isSeldyn(data) else 7 # Index of Direct/Cartesian line
+        if not is_cart(data): data = switchcart(data)
+        dcindex = 8 if is_seldyn(data) else 7 # Index of Direct/Cartesian line
             
         # Manipulate basis vectors
-        B = Basis(data) # Read lattice vectors
+        B = basis(data) # Read lattice vectors
         # Multiply by multipliers
         aff = np.multiply(B[0],AA)
         bff = np.multiply(B[1],BB)

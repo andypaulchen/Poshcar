@@ -1,4 +1,4 @@
-# Compcar: Compare POSCAR, before and after relaxation
+# compcar: Compare POSCAR, before and after relaxation
 
 # Are you curious to find out how much atoms move before and after the relaxation step? This routine
 # converts the direct coordinates to cartesian and then calculate the movement vector. I imagine you can
@@ -14,7 +14,7 @@
 # The big shale rock face at Frankie's Gate is always wet. I am wondering if this is what people call
 # spring water.
 
-from Distance import *
+from poshcar.distance import *
 
 def atomsno(data1, data2):
     elem1 = re.findall(r'\w+', data1[atom_name_index].strip())
@@ -33,14 +33,14 @@ def compcar(data1, data2, out_filename):
     if atomsno(data1, data2):
         print("Number of atoms by species: match!")
         # Execute main compcar routine
-        dcindex = 8 if isSeldyn(data1) else 7 # Index of Direct/Cartesian line
-        if not isCart(data1): data1 = switchCart(data1, verbose = False)
-        if not isCart(data2): data2 = switchCart(data2, verbose = False)
+        dcindex = 8 if is_seldyn(data1) else 7 # Index of Direct/Cartesian line
+        if not is_cart(data1): data1 = switchcart(data1, verbose = False)
+        if not is_cart(data2): data2 = switchcart(data2, verbose = False)
         compflag = "Compcar\n"
         dataout = data2[:7] + ["Compcar\n"]
         
         # allcoord extraction
-        ns, allcoord = Images(data2)
+        ns, allcoord = images(data2)
         
         for line in range(len(data1)):
             if line > dcindex:

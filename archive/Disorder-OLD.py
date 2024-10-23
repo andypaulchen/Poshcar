@@ -5,8 +5,8 @@
 
 # 8 May 2024: I starts to implement the Atomic Sudoku code
 
-from Supercell import *
-from AtomSub import *
+from supercell import *
+from atomsub import *
 from Distance import *
 from Additive import *
 import random
@@ -56,18 +56,18 @@ def cif2vasp_occ(ciffile, verbose = True):
         else: j = max([x for x in sites if x < int(i)], default=None) 
         k = np.where(sites == j)[0][0] # extract coordinates
         toadd = next(iter(occdict[i].items())) # extract atoms
-        vaspdata = AddAtom(vaspdata, toadd[0], positions[k], verbose = False)
+        vaspdata = addatom(vaspdata, toadd[0], positions[k], verbose = False)
         cursor += 1
         vaspdata[cursor] = vaspdata[cursor].rstrip() + ls + (toadd[0]+str(j)).ljust(5) + "  " + str(toadd[1]) + "\n"
     
-    vaspdata = RemoveAtom(vaspdata, [1], verbose = False) # Remove the placeholder atom
+    vaspdata = removeatom(vaspdata, [1], verbose = False) # Remove the placeholder atom
     # write data to vasp file again
     writefile(vaspdata, filename_header+'.vasp', verbose)
     return vaspdata
 
 def composition(data, verbose = True):
     # Return vector containing fractional 
-    df = ElemIndices(data, verbose)
+    df = elemindices(data, verbose)
     total = df['Occupancy'].sum()
     sum_by_spp = df.groupby('Species')['Occupancy'].sum()
     proportions = sum_by_spp/total
@@ -90,10 +90,10 @@ def random_fill(data, crashmat, verbose = True):
         occ = float(re.findall(r'\S+', data[backline].strip())[4]) # probability atom stays
         if occ < 1.0:
             if atomid in deletelist:
-                data = AtomSub(data,"vac",[atomid], verbose = False) # delete atom by crash
+                data = atomsub(data,"vac",[atomid], verbose = False) # delete atom by crash
                 if verbose: print("delete atom #", atomid, " by crash")
             elif random.random() > occ: 
-                data = AtomSub(data,"vac",[atomid], verbose = False) # delete atom by cointoss
+                data = atomsub(data,"vac",[atomid], verbose = False) # delete atom by cointoss
                 if verbose: print("delete atom #", atomid, "by cointoss")
                 # need to increase occ for atoms that crash into them
             else:
@@ -106,7 +106,7 @@ def VirtualLibraryRandomFill(vaspfile, header, N, supercellsize, verbose = True,
     # Source vaspfile is required to be a "disordered" vasp file
     # Generate a list of N virtual cells (text line-list format)
     # Check for target composition
-    # Supercellsize = array with 3 integers
+    # supercellsize = array with 3 integers
     # header = folder name or path
     
     datalist = [] # init array
@@ -121,8 +121,8 @@ def VirtualLibraryRandomFill(vaspfile, header, N, supercellsize, verbose = True,
     except: print('Folder already created')
     if chgnet_on: chgnet = CHGNet.load()
     
-    if isSeldyn(data) and data[7].lower() == 'site-disordered structure\n': 
-        atomoccs = ElemIndices(data, verbose)
+    if is_seldyn(data) and data[7].lower() == 'site-disordered structure\n': 
+        atomoccs = elemindices(data, verbose)
         original_comp = composition(data, verbose) # register real compositional data
         partial_sites = (atomoccs['Occupancy'] < 1.0).sum()*np.prod(supercellsize)
         print("Number of partially-occupied sites: ", partial_sites)
@@ -130,20 +130,20 @@ def VirtualLibraryRandomFill(vaspfile, header, N, supercellsize, verbose = True,
         # Make target bonding matrix
         try: target = readfile(targetfile)
         except: target = data
-        runiq, bme_targ, bma_targ = Matrix_Bonding_Average(target, 'element', bond_threshold, verbose)
+        runiq, bme_targ, bma_targ = matrix_bonding_average(target, 'element', bond_threshold, verbose)
 
         # Making the supercell
         scz = supercellsize
-        sc = Supercell(data, scz[0], scz[1], scz[2]) # supercell
+        sc = supercell(data, scz[0], scz[1], scz[2]) # supercell
         i = 0 # initialize
-        crashmat = Crashtest(sc, crash_threshold, verbose = False)
+        crashmat = crashtest(sc, crash_threshold, verbose = False)
 
         # Make virtual cells
         while i < N:
             print("i=",i)
             sci = sc.copy()
             sci = random_fill(sci, crashmat, verbose) # manipulate a copy of the supercell
-            runiq, bme, bma = Matrix_Bonding_Average(sci, 'element', bond_threshold, verbose)
+            runiq, bme, bma = matrix_bonding_average(sci, 'element', bond_threshold, verbose)
 
             datalist.append(sci)
             #bondlist.append(bme.flatten())
@@ -178,7 +178,7 @@ def VirtualLibraryRandomFill(vaspfile, header, N, supercellsize, verbose = True,
 def VirtualLibraryCif(ciffile, header, supercellsize, verbose = True, bond_threshold = 0.1, chgnet_on = False, targetfile = "."):
     # import disordered cell directly as cif
     # Check for target composition
-    # Supercellsize = array with 3 integers
+    # supercellsize = array with 3 integers
     # header = folder name or path
 
     datalist = [] # init array
@@ -198,7 +198,7 @@ def VirtualLibraryCif(ciffile, header, supercellsize, verbose = True, bond_thres
     original_comp = composition(vaspdata, verbose)
     try: target = readfile(targetfile)
     except: target = vaspdata
-    runiq, bme_targ, bma_targ = Matrix_Bonding_Average(target, 'element', bond_threshold, verbose)
+    runiq, bme_targ, bma_targ = matrix_bonding_average(target, 'element', bond_threshold, verbose)
 
     # Load file into a structure, make supercell
     struct = Structure.from_file(ciffile)
@@ -219,7 +219,7 @@ def VirtualLibraryCif(ciffile, header, supercellsize, verbose = True, bond_thres
         datalist.append(entry_in_vasp)
 
         # Bondmatrix block
-        runiq, bme, bma = Matrix_Bonding_Average(entry_in_vasp, 'element', bond_threshold, verbose)
+        runiq, bme, bma = matrix_bonding_average(entry_in_vasp, 'element', bond_threshold, verbose)
         bondlist.append(bme)
         bdlist.append(np.linalg.norm(bme - bme_targ, 'fro')) # Bonding matrix differences / Frobenius Norm
 
@@ -250,7 +250,7 @@ def VirtualLibraryCif(ciffile, header, supercellsize, verbose = True, bond_thres
     return datalist, summary
 
 def VirtualLibrary(path, target, pauling_weight = 1, bond_threshold = 0.1, verbose = True):
-    # Source: a folder (path) already populated by virtual cells from Supercell software
+    # Source: a folder (path) already populated by virtual cells from supercell software
     # No further filling required!!
     # Check for target composition (target is compulsory)
     # header = folder name or path
@@ -265,9 +265,9 @@ def VirtualLibrary(path, target, pauling_weight = 1, bond_threshold = 0.1, verbo
     # Load CHGNET bc we defo need to use this
     chgnet = CHGNet.load()
 
-    # Take care of the target file (could be source file input to Supercell)
+    # Take care of the target file (could be source file input to supercell)
     # or maybe even a user-defined cell for correlated disorder
-    runiq, bme_targ, unav = Matrix_Bonding_Average(target, 'element', bond_threshold, verbose = True)
+    runiq, bme_targ, unav = matrix_bonding_average(target, 'element', bond_threshold, verbose = True)
     original_comp = composition(target, verbose) # register real compositional data
 
     # Iterate over all .cif files in folder
@@ -281,7 +281,7 @@ def VirtualLibrary(path, target, pauling_weight = 1, bond_threshold = 0.1, verbo
             cifdata.to(filename = vaspfilepath, fmt = "poscar")
             virtual = readfile(vaspfilepath)
             if verbose: printvaspdata(virtual)
-            runiq, bme, unaverageness = Matrix_Bonding_Average(virtual, 'element', bond_threshold, bme_correlated = bme_targ, verbose = verbose)
+            runiq, bme, unaverageness = matrix_bonding_average(virtual, 'element', bond_threshold, bme_correlated = bme_targ, verbose = verbose)
 
             # append to datalist
             datalist.append(virtual)

@@ -1,10 +1,9 @@
-# Distance: Find distance between sites in cell, in quoted Cartesian coordinates
+# distance: Find distance between sites in cell, in quoted Cartesian coordinates
 
 # Andy Paul Chen, Monday, 9 August 2021, Little Italy, Cleveland, Ohio (National Day of Singapore)
 # 2 Nov 2023 I can't believe I am back again
 
-from Cartesian import * # Cartesian coordinates package
-#from CQuery import * # coordinates query package
+from poshcar.cartesian import * # Cartesian coordinates package
 
 # Cite: https://doi.org/10.1039/B801115J; https://doi.org/10.1002/chem.200800987 (Bk onwards; single bond)
 covalent_radius_pm = [31+5, 28, 128+7, 96+3, 84+3, 76+1, 71+1, 66+2, 57+3, 58, 166+9, 141+7, 121+4, 111+2, 107+3, 105+3, 102+4, 106+10, 203+12, 176+10, 170+7, 160+8, 153+8, 139+5, 161+8, 152+6, 150+7, 124+4, 132+4, 122+4, 122+3, 120+4, 119+4, 120+4, 120+3, 116+4, 220+9, 195+10, 190+7, 175+7, 164+6, 154+5, 147+7, 146+7, 142+7, 139+6, 145+5, 144+9, 142+5, 139+4, 139+5, 138+4, 139+3, 140+9, 244+11, 215+11, 207+8, 204+9, 203+7, 201+6, 199, 198+8, 198+6, 196+6, 194+5, 192+7, 192+7, 189+6, 190+10, 187+8, 175+10, 187+8, 170+8, 162+7, 151+7, 144+4, 141+6, 136+5, 136+6, 132+5, 145+7, 146+5, 148+4, 140+4, 150, 150, 260, 221+2, 215, 206+6, 200, 196+7, 190+1, 187+1, 180+6, 169+3, 168, 168, 165, 167, 173, 176, 161, 157, 149, 143, 141, 134, 129, 128, 121, 122, 136, 143, 162, 175, 165, 157] # add one SD
@@ -13,24 +12,12 @@ nobond = [0,2,1,1,0,0,0,0,0,2,1,1,1,0,0,0,0,2,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,
 # 1: Metal (M-M bond forbidden)
 # 2: Noble gas (any bond forbidden)
 
-def distance(c1, c2):
-    # Read Cartesian coordinates 1 and 2, derive distance (in Angstroms)
-    # c1, c2 are np. arrays of three float values
-    a = np.array(c1)
-    b = np.array(c2)
-    return np.linalg.norm(a-b)
-
-def vector(c1, c2):
-    a = np.array(c1)
-    b = np.array(c2)
-    return b-a
-
-def isNearest(data, c, verbose = True):
+def is_nearest(data, c, verbose = True):
     # read c (array of three floats)
     # return index of closest site to coordinates
     # display distance
     # allcoord extraction
-    ns, allcoord = Images(data)
+    ns, allcoord = images(data)
     
     # analysis
     for i in range(ns):
@@ -51,15 +38,15 @@ def isNearest(data, c, verbose = True):
 # My first coding after surviving war in Israel. They shot as us with rockets!
 # Can people here ever catch a break??
 
-def Images(data):
+def images(data):
     # Generate 27 images of an atomic site around an original unit cell (Cartesian coordinates)
     # Useful dor dealing with periodic boundary artefacts
     # Output to a unique 27-cell data structure - list of 27 lists of coordinates
     # Convert to Cartesian coordinates
-    if not isCart(data): data = switchCart(data, verbose = False)
+    if not is_cart(data): data = switchcart(data, verbose = False)
     # Choose starting file line for coordinates according to site-disorder (selective dynamics) tag
-    dcindex = 8 if isSeldyn(data) else 7
-    B = Basis(data) # Read lattice vectors
+    dcindex = 8 if is_seldyn(data) else 7
+    B = basis(data) # Read lattice vectors
     
     # Read atomic coordinates
     monocoord = []
@@ -71,7 +58,7 @@ def Images(data):
     ns = len(monocoord) # Number of atoms in this unit cell
 
     # Let me write this down here real quicc. We are going to make a supercell
-    # but not follow through all the processes of the Supercell function. We will
+    # but not follow through all the processes of the supercell function. We will
     # extend the list of atoms to the 27 surrounding unit cells only. Closest
     # neighbours which are images on the list will be mapped to the original ion.
     
@@ -95,8 +82,8 @@ def Images(data):
             
     return ns, allcoord
 
-def ElemIndices(data, verbose = True):
-    if isSeldyn(data) and data[7].lower() == 'site-disordered structure\n': # site-disordered structures require site-specific symbols
+def elemindices(data, verbose = True):
+    if is_seldyn(data) and data[7].lower() == 'site-disordered structure\n': # site-disordered structures require site-specific symbols
         if verbose: print("Site-disordered structure detected!")
         dcindex = 8
         spp = []
@@ -119,9 +106,9 @@ def ElemIndices(data, verbose = True):
     atomspp = pd.DataFrame({'Species': spp, 'Wyckoff Site': res, 'POSCAR Site': res_indexed, 'Occupancy': np.array(occ).astype(float)})
     return atomspp
 
-def Matrix_Distances(data, verbose = True):
-    atomspp = ElemIndices(data) # Header extraction
-    ns, allcoord = Images(data) # allcoord extraction - ns = number of atoms in cell
+def matrix_distances(data, verbose = True):
+    atomspp = elemindices(data) # Header extraction
+    ns, allcoord = images(data) # allcoord extraction - ns = number of atoms in cell
     
     distance_matrix = np.zeros((27,ns,ns))
     vectors_matrix = np.zeros((27,ns,ns,3))
@@ -137,9 +124,9 @@ def Matrix_Distances(data, verbose = True):
         display(df) # Display example (native cell)
     return vectors_matrix, distance_matrix  
 
-def Matrix_Bonding(data, tolerance, verbose = True):
-    vector_matrix, distance_matrix = Matrix_Distances(data, verbose = False) # Extract distance matrix, atom indices
-    atomspp = ElemIndices(data)
+def matrix_bonding(data, tolerance, verbose = True):
+    vector_matrix, distance_matrix = matrix_distances(data, verbose = False) # Extract distance matrix, atom indices
+    atomspp = elemindices(data)
     ns = len(list(atomspp['POSCAR Site']))
     covalent_radius_a = [x/100 for x in covalent_radius_pm]
     # Retrieve atomic numbers
@@ -164,15 +151,15 @@ def Matrix_Bonding(data, tolerance, verbose = True):
         display(df) # Display example (native cell)
     return bonding_matrix
 
-def Matrix_Bonding_Average(data, mode, tolerance, bme_correlated = 'amaiwana', verbose = True):
+def matrix_bonding_average(data, mode, tolerance, bme_correlated = 'amaiwana', verbose = True):
     # Average bonding matrix, can also be used for site-disordered stuff
     # mode: string input, first letter for [s]ite classification or [e]lement species classification
     # Edit of 10 Sep 2024: deviations from the mean are recorded in a separate matrix to output
     # bme_correlated specified if another averaged matrix needs to be used (this is in the case of correlated disorder)
 
-    atomspp = ElemIndices(data, verbose) # What atoms are in here
+    atomspp = elemindices(data, verbose) # What atoms are in here
     weights = atomspp['Occupancy']
-    bms = Matrix_Bonding(data, tolerance, verbose = False).sum(0)
+    bms = matrix_bonding(data, tolerance, verbose = False).sum(0)
 
     # Mode 
     classification = mode[0].upper()
@@ -242,7 +229,7 @@ def Matrix_Bonding_Average(data, mode, tolerance, bme_correlated = 'amaiwana', v
 
     return runiq, bme, unaverageness
 
-def Crashtest(data, tolerance, verbose = True):
+def crashtest(data, tolerance, verbose = True):
     # Determine if an atom pair is too close to one another
     # tolerance is a percentage value (0.0-1.0)
     # 26 Jul 2024: returns crash matrix instead of bool output
@@ -251,8 +238,8 @@ def Crashtest(data, tolerance, verbose = True):
     if verbose: print ("Tolerance: ", tolerance)
     accept = True
     
-    vector_matrix, distance_matrix = Matrix_Distances(data, verbose) # Extract distance matrix, atom indices
-    atomspp = ElemIndices(data, verbose)
+    vector_matrix, distance_matrix = matrix_distances(data, verbose) # Extract distance matrix, atom indices
+    atomspp = elemindices(data, verbose)
     ns = len(list(atomspp['POSCAR Site']))
     covalent_radius_a = [x/100 for x in covalent_radius_pm]
     # Retrieve atomic numbers

@@ -1,11 +1,11 @@
-# Perovskite: Generates a perovskite POSCAR 
+# perovskite: Generates a perovskite POSCAR 
 
 # Andy Paul Chen, Thursday 17 February 2022, Singapore
 
-from Cartesian import * # SHMOSCAR core package
+from poshcar.cartesian import * 
 Organics = ["FA", "MA"]
 
-def perovABX3(a, A, B, X):
+def perovskite(a, A, B, X):
     if ((A in Periodic_Table) or (A in Organics)) and (B in Periodic_Table) and (X in Periodic_Table):
         data = [A+B+X+"3\n", "1.0\n",
                 ls+ flpr.format(a) +"  0.0  0.0\n", ls+"0.0   " + flpr.format(a) +"   0.0\n", ls + "0.0  0.0  "+ flpr.format(a) +"\n", 
@@ -15,7 +15,7 @@ def perovABX3(a, A, B, X):
             data[0] = "[MA](CH3-NH3)"+B+X+"3\n"
             data[5] = ls+X+ls+B+ls+"C"+ls+"N"+ls+"H\n"
             data[6] = ls+"3    1    1    1    6\n"
-            data = switchCart(data, verbose = False)
+            data = switchcart(data, verbose = False)
             data[12] = lls+"0.585428"+lls+"-0.02016"+lls+"0.084438\n"
             data.extend([lls+"-0.88338"+lls+"-0.02016"+lls+"-0.18486\n",
                          lls+"-1.35278"+lls+"0.815464"+lls+"0.209024\n", 
@@ -28,7 +28,7 @@ def perovABX3(a, A, B, X):
             data[0] = "[FA](H2N-CH-NH2)"+B+X+"3\n"
             data[5] = ls+X+ls+B+ls+"C"+ls+"N"+ls+"H\n"
             data[6] = ls+"3    1    1    2    5\n"
-            data = switchCart(data, verbose = False)
+            data = switchcart(data, verbose = False)
             data.extend([lls+"-0.59155"+lls+"0.000000"+lls+"-1.17165\n",
                          lls+"-0.59155"+lls+"0.000000"+lls+"1.171655\n",
                          lls+"-1.60606"+lls+"0.000000"+lls+"1.309395\n",

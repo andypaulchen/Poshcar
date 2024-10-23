@@ -11,9 +11,9 @@
 # I bought a bow and forearm guard for defense in the event of a societal meltdown. The arrows
 # will come soon, hopefully.
 
-from Shmoscar import *
+from poshcar import *
 
-def isSeldyn(data):
+def is_seldyn(data):
     # Read list of lines extracted from file (data) and determine if selective dynamics
     # is switched on or not.
     # True if yes, false if no
@@ -23,20 +23,20 @@ def isSeldyn(data):
     if data[7][0].upper() == 'S': return True
     else: return False
 
-def SeldynSwitch(data):
+def seldynswitch(data):
     # if data has no selective dynamics, turn it on
     # and switch all flags to false (F). If selective dynamics is on, remove the line containing
     # 'selective dynamics' and remove all flags.
 
     # Whittle the tail (CONTCAR)
-    dcindex = 8 if isSeldyn(data) else 7 # Index of Direct/Cartesian line
+    dcindex = 8 if is_seldyn(data) else 7 # Index of Direct/Cartesian line
     num = re.findall(r'\d+', data[atom_number_index].strip())
     snum = sum(list(map(int,num)))
     data = data[:(snum + dcindex + 1)] # whittle the tail
     
-    # Test isseldyn condition, remove line if true, add line if false
+    # Test is_seldyn condition, remove line if true, add line if false
     # Remove flags if true, add flags (F F F) if false
-    if isSeldyn(data):
+    if is_seldyn(data):
         for line in range(len(data)):
             if line > 8:
                 coords = re.findall(r"-?\d+\.\d+", data[line].strip())
@@ -55,7 +55,7 @@ def SeldynSwitch(data):
 # exactly the same thing as that tube you use to carry conference posters around.
 # 5.40pm: Now the arrows are also here
 
-def SetFlags(data, TF, setatoms):
+def setflags(data, TF, setatoms):
     # TF: any combination of "(T/F)(T/F)(T/F)" as flags
     # e.g. set TF = 'F F T' to relax atom in +z direction only
     # setatoms: [list] of atoms affected by operation
@@ -67,9 +67,9 @@ def SetFlags(data, TF, setatoms):
     if not TF_valid: print("Error in argument 3: 3 instances of 'T' or 'F' expected!")
         
     # If selective dynamics not switched on, do so and set all flags to F
-    if not isSeldyn(data):
+    if not is_seldyn(data):
         print("Selective dynamics not switched on in POSCAR. Well dang, I'll switch it anyway...")
-        data = SeldynSwitch(data)
+        data = seldynswitch(data)
         print("All flags set to F")
     
     # Read string of element symbols and number of atoms per element

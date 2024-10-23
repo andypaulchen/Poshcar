@@ -1,4 +1,4 @@
-# Smiles: Generate a 0D molecule cell of organic molecule from SMILES string
+# smiles: Generate a 0D molecule cell of organic molecule from SMILES string
 # Here we use the rdkit package as an aid. They got there first!!!!
 
 # Andy Paul Chen, 25 November 2023
@@ -8,9 +8,9 @@ from rdkit.Chem import AllChem
 from rdkit.Chem import Draw
 from rdkit.Chem.Draw import IPythonConsole
 from scipy.spatial.transform import Rotation as R
-from Cartesian import *
+from poshcar.cartesian import *
 
-def BuildMolecule(smiles):
+def build_molecule(smiles):
     # From SMILES string, build a VASP cell containing an organic molecule
     
     my_mol = Chem.MolFromSmiles(smiles)
@@ -54,15 +54,15 @@ def BuildMolecule(smiles):
     
     return data
 
-def RotateMolecule(data, axis, angle):
+def rotate_molecule(data, axis, angle):
     # Note: angle is in degrees, while axis is in 'x/y/z' or any combination thereof
     rotmatrix = R.from_euler(axis, angle, degrees=True)
     rotmatrix = rotmatrix.as_matrix()
     # See scipy documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.transform.Rotation.from_euler.html
     # Convert to Cartesian coordinates
-    if not isCart(data): data = switchCart(data)
-    if isSeldyn(data): data = SeldynSwitch(data)
-    dcindex = 8 if isSeldyn(data) else 7 # Index of Direct/Cartesian line
+    if not is_cart(data): data = switchcart(data)
+    if is_seldyn(data): data = seldynswitch(data)
+    dcindex = 8 if is_seldyn(data) else 7 # Index of Direct/Cartesian line
     for line in range(len(data)):
         if line > dcindex:
             coords = np.array(re.findall(r"-?\d+\.\d+", data[line].strip()))
@@ -71,8 +71,8 @@ def RotateMolecule(data, axis, angle):
             data[line] = ls + str(newc[0]) + ls + str(newc[1]) + ls + str(newc[2]) + "\n"
     return data
 
-def CenterMolecule(data):
-    B = Basis(data) # Read lattice vectors
+def center_molecule(data):
+    B = basis(data) # Read lattice vectors
     vector = (B[0] + B[1] + B[2])/2
-    data = Translate(data, vector)
+    data = translate(data, vector)
     return data

@@ -1,18 +1,17 @@
-# VacuumQD: Create a QD surrounded by vacuum from a single unit cell 
+# qd: Create a QD surrounded by vacuum from a single unit cell 
 
 # Andy Paul Chen, Tuesday 15 February 2022, Singapore
-# (Update of 10 May 2022): Termination control (same termination, all round!) in VacuumQDPerov
+# (Update of 10 May 2022): Termination control (same termination, all round!) in qd_perov
 
-from Distance import * # Distance package, incl. Cartesian, Seldyn, Shmoscar
-from Perovskite import *
-from Clip import *
-from Supercell import *
+from poshcar.perovskite import *
+from poshcar.clip import *
+from poshcar.supercell import *
 
-def VacuumQD(data, vacuumSize):
+def qd(data, vacuumSize):
     # Input: data (data file-line array) and vacuumSize (size of inter-QD spacing in angstroms)
     
     # Convert to Cartesian coordinates
-    if not isCart(data): data = switchCart(data)
+    if not is_cart(data): data = switchcart(data)
                
     # Manipulate basis vectors
     a = np.array(re.findall(r"-?\d+\.\d+", data[2].strip()))
@@ -33,7 +32,7 @@ def VacuumQD(data, vacuumSize):
         
     return data
     
-def VacuumQDPerov(a, perovskite, supercell, vacuumSize, termination):
+def qd_perov(a, elementlist, supercellsize, vacuumsize, termination):
     # returns a perovskite quantum dot
     # of formula ABX_3 (perovskite = ["A", "B", "X"])
     # and cells reduplicated (supercell=[n1,n2,n3]) times in the [a,b,c] directions
@@ -42,24 +41,24 @@ def VacuumQDPerov(a, perovskite, supercell, vacuumSize, termination):
     # If neither is specified, the termination is not adjusted
     
     # Generate base perovskite unit cell
-    data = perovABX3(a, perovskite[0], perovskite[1], perovskite[2])
+    data = perovskite(a, elementlist[0], elementlist[1], elementlist[2])
     
-    # Generate Supercell
-    data = Supercell(data, supercell[0], supercell[1], supercell[2])
+    # Generate supercell
+    data = supercell(data, supercellsize[0], supercellsize[1], supercellsize[2])
     
     # Insert vacuum spacing
-    data = VacuumQD(data, vacuumSize)
+    data = qd(data, vacuumsize)
     
     # Enforce termination
     marg = a/4 # defines margin for clipping
     if termination.upper() == "A":
         # clip at far edge
-        cutoff = [(a*supercell[0])-(3*marg), (a*supercell[1])-(3*marg), (a*supercell[2])-(3*marg)]
-        data = Clip(data, 1, cutoff)
+        cutoff = [(a*supercellsize[0])-(3*marg), (a*supercellsize[1])-(3*marg), (a*supercellsize[2])-(3*marg)]
+        data = clip(data, 1, cutoff)
     elif termination.upper() == "B":
         # clip at near edge
         cutoff = [marg, marg, marg]
-        data = Clip(data, -1, cutoff)
+        data = clip(data, -1, cutoff)
     else:
         print("WARNING: No valid input specified for termination (QD has mixed termination)! \n")
     

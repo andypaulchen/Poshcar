@@ -9,11 +9,6 @@ import itertools
 from operator import add
 from copy import deepcopy
 
-# For display purposes
-#import nglview
-from ase.io import read
-from ase.visualize import view
-
 # Global Variables
 atom_name_index = 5
 atom_number_index = 6
@@ -48,7 +43,7 @@ def rename(data, newname):
     # Replace header
     data[0] = newname + "\n"
     
-def Basis(data):
+def basis(data):
     # Read lattice vectors
     m1 = re.findall(r"-?\d+\.\d+", data[1].strip())
     mu = float(m1[0])

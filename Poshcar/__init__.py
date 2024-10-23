@@ -6,7 +6,11 @@ Poshcar - VASP POSCAR text editor package
 """
 
 from .main import *
-from .ElemSwitch import *
+
+# For display purposes
+#import nglview
+from ase.io import read
+from ase.visualize import view
 
 __copyright__  = "Andy Paul Chen"
 __version__    =  "1.0.0"

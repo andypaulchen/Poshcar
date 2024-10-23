@@ -6,7 +6,7 @@ Hi. Welcome to the changelog. Here I document any new changes made since April F
 <April 2, 2020>
 I named this suite SHMOSCAR. With any luck, more people will appreciate and use this very lightweight package over time.
 I am numbering version numbers by date, with format YY.MM.DD.
-The extant scripts are: AtomSub, AtomSub1 (deprecated), Coords, ElemSwitch, and Seldyn
+The extant scripts are: atomsub, atomsub1 (deprecated), Coords, elemswitch, and Seldyn
 You can try them out with the notebook file: functions-demo.ipynb
 A POSCAR file (POSCAR-2310.vasp) has been harvested from the wild for your experimentations.
 
@@ -15,7 +15,7 @@ The entire thing gets a streamline: heavily-used global variables and functions 
 Compcar.py is still work in progress. It will be used to calculate drift that happens during relaxation
 
 <December 4, 2020>
-Modified AtomSub.py to enable vacancies (I can't believe that is not already implemented!)
+Modified atomsub.py to enable vacancies (I can't believe that is not already implemented!)
 
 <November 9, 2023>
 Big updates which I forgot to mention on the changelog! More modules were added in 2022 to build cells
@@ -32,3 +32,7 @@ Added a global float precision variable (flpr) to standardise across the package
 
 <May 15, 2024>
 Building the "Atomic Sudoku" capabilities in Disorder.py
+
+<22 October 2024>
+Putting this whole thing in a proper Python package, for once! It's a big overhaul
+Some functions now come with a verbosity switch. This will aid in.. stuff..

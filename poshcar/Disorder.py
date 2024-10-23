@@ -5,8 +5,8 @@
 
 # 8 May 2024: I starts to implement the Atomic Sudoku code
 
-from Supercell import *
-from AtomSub import *
+from supercell import *
+from atomsub import *
 from Distance import *
 from Additive import *
 import random
@@ -44,18 +44,18 @@ def cif2vasp_occ(ciffile, verbose = True):
         else: j = max([x for x in sites if x < int(i)], default=None) 
         k = np.where(sites == j)[0][0] # extract coordinates
         toadd = next(iter(occdict[i].items())) # extract atoms
-        vaspdata = AddAtom(vaspdata, toadd[0], positions[k], verbose = False)
+        vaspdata = addatom(vaspdata, toadd[0], positions[k], verbose = False)
         cursor += 1
         vaspdata[cursor] = vaspdata[cursor].rstrip() + ls + (toadd[0]+str(j)).ljust(5) + "  " + str(toadd[1]) + "\n"
     
-    vaspdata = RemoveAtom(vaspdata, [1], verbose = False) # Remove the placeholder atom
+    vaspdata = removeatom(vaspdata, [1], verbose = False) # Remove the placeholder atom
     # write data to vasp file again
     writefile(vaspdata, filename_header+'.vasp', verbose)
     return vaspdata
 
 def composition(data, verbose = True):
     # Return vector containing fractional 
-    df = ElemIndices(data, verbose)
+    df = elemindices(data, verbose)
     total = df['Occupancy'].sum()
     sum_by_spp = df.groupby('Species')['Occupancy'].sum()
     proportions = sum_by_spp/total
@@ -64,7 +64,7 @@ def composition(data, verbose = True):
 
 
 def VirtualLibrary(path, target, pauling_weight = 1, bond_threshold = 0.1, structure_opt = True, verbose = True):
-    # Source: a folder (path) already populated by virtual cells from Supercell software
+    # Source: a folder (path) already populated by virtual cells from supercell software
     # No further filling required!!
     # Check for target composition (target is compulsory)
     # header = folder name or path
@@ -83,9 +83,9 @@ def VirtualLibrary(path, target, pauling_weight = 1, bond_threshold = 0.1, struc
     chgnet = CHGNet.load()
     relaxer = StructOptimizer()
 
-    # Take care of the target file (could be source file input to Supercell)
+    # Take care of the target file (could be source file input to supercell)
     # or maybe even a user-defined cell for correlated disorder
-    runiq, bme_targ, unav = Matrix_Bonding_Average(target, 'element', bond_threshold, verbose = True)
+    runiq, bme_targ, unav = matrix_bonding_average(target, 'element', bond_threshold, verbose = True)
     original_comp = composition(target, verbose) # register real compositional data
 
     # Iterate over all .cif files in folder
@@ -109,7 +109,7 @@ def VirtualLibrary(path, target, pauling_weight = 1, bond_threshold = 0.1, struc
             #virtual = readfile(path+filename_header+"_final.vasp")
             virtual = readfile(path+filename_header+".vasp")
             if verbose: printvaspdata(virtual)
-            runiq, bme, unaverageness = Matrix_Bonding_Average(virtual, 'element', bond_threshold, bme_correlated = bme_targ, verbose = verbose)
+            runiq, bme, unaverageness = matrix_bonding_average(virtual, 'element', bond_threshold, bme_correlated = bme_targ, verbose = verbose)
 
             # append to datalist
             datalist.append(virtual)

@@ -1,4 +1,4 @@
-# ElemSwitch: Algorithm to switch two elements in the list of elements in POSCAR
+# elemswitch: Algorithm to switch two elements in the list of elements in POSCAR
 
 # This switches the order of elements in the POSCAR. Sometimes the visualisation software
 # does it on its own without warning you. Isn't it annoying? Looking at you, VESTA
@@ -10,11 +10,9 @@
 # absolutely sick of Python, so y'alls can infer that I'm green. Wish me luck.
 # I do my documentation the best I can in the comments. You are very welcome!
 
-from Poshcar import * # selective dynamics package
+from poshcar.seldyn import *
 
-__all__ = ['ElemSwitch', 'ElemSet']
-
-def ElemSwitch(data):
+def elemswitch(data):
     # Switch elements based on input prompt
     # Print Input file information
     print("List of elements:"+ longspace + data[atom_name_index].strip())
@@ -26,7 +24,7 @@ def ElemSwitch(data):
     # Index of atoms (translate from ordinal -> location in file)
     # In the case of Selective Dynamics, the first coordinates are on line 8
     # Otherwise, it's 7
-    addindex = 8 if isSeldyn(data) else 7
+    addindex = 8 if is_seldyn(data) else 7
     # Prompt user to say which ones to switch
     user = input("Which two elements do you want to switch?: ")
     user_list = re.findall(r'\w+', user.strip())
@@ -65,10 +63,12 @@ def ElemSwitch(data):
         return dataout
     else:
         print("ERROR: Invalid switching duplet! Output file not written")
+
 # Day 37 of Lockdown: 28 April 2020. Time passes quickly like the arrows I now shoot gleefully
 # at the target in the basement. I meet my goals also like the arrows meeting the target at the 
 # basement, in other words badly.
-def ElemSet(data, pos, Sp2, verbose = True):
+
+def elemset(data, pos, Sp2, verbose = True):
     # Take in_filename, change all atom of species in ordinal position pos (1,2,3...etc) to Sp2
     # Print Input file information
     if verbose: print("List of elements:"+ longspace + data[atom_name_index].strip())

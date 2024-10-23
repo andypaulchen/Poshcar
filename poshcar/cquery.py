@@ -1,4 +1,4 @@
-# CQuery: Easy look-up of atom coordinates
+# cquery: Easy look-up of atom coordinates
 
 # Listen. You put in number x. Program find x-th atom on list, give coordinate. Давайте?
 # Yuo can do the same in VESTA. Unfortunately, clicking in VESTA can be annoying. 
@@ -10,18 +10,18 @@
 # Andy Paul Chen, Monday, 9 August 2021, Little Italy, Cleveland, Ohio (National Day of Singapore)
 # data_cQuery dadded
 
-# Changed name from Coords to CQuery on 7 November 2023
+# Changed name from Coords to cquery on 7 November 2023
 
-from Seldyn import * # selective dynamics package
+from poshcar.seldyn import * # selective dynamics package
 
-def CQuery(data, atomno, verbose = True):
+def cquery(data, atomno, verbose = True):
     # Identify atomic species and number of atoms present in cell
     # Returns elem
     elem_list = re.findall(r'\w+', data[atom_name_index].strip())
     num_list = re.findall(r'\d+', data[atom_number_index].strip())
     
     # Index of atoms (translate from ordinal -> location in file)
-    addindex = 8 if isSeldyn(data) else 7
+    addindex = 8 if is_seldyn(data) else 7
     
     # Now to identify species and ordinal number!
     #Read string of numbers

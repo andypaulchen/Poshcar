@@ -2,5 +2,5 @@
 tests/.ipynb_checkpoints/test-checkpoint.ipynb
 .ipynb_checkpoints/
 poshcar/_pycache_/
-__pycache__
+__pycache__/
 poshcar.egg-info/

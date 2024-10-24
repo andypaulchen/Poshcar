@@ -15,8 +15,8 @@ Demo notebooks are organised into 3 parts:<br>
 The output of the demo operations can be seen in the `tests/_demo/` folder.
 
 ## Modules
-Interdependencies of modules are illustrated in the diagram below. The dependency relationship is marked with arrows (dependent -> core). Please use this graph for your reference if you would like to add to Poshcar!<br>
-<img src="graphics/dependencygraph.png" width="600" align="center">
+Interdependencies of modules are illustrated in the diagram below. The dependency relationship is marked with arrows (dependent -> core). Please use this graph for your reference if you would like to add to Poshcar!<br><br>
+<img src="graphics/dependencygraph.png" width="700" align="center">
 
 ## Dependencies
 ase, pyvis, rdkit, scipy, pymatgen, chgnet, pandas, networkx

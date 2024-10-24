@@ -4,3 +4,6 @@ rdkit
 scipy
 pymatgen
 chgnet
+nglview
+pandas
+networkx

@@ -28,6 +28,6 @@ A demonstration can be found in `tests/_demo/test-1-core.ipynb`.
 
 ## Changelog
 You can visit the changelog in `docs/changelog.txt` for a short summary of changes I made over the years. I'm a bit lazy in the documentation, though.<br>
-**Current version:** 2.0.0
+**Current version:** 2.0.0<br>
 **Last update:** 24 October 2024
 

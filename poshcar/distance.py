@@ -131,7 +131,7 @@ def matrix_bonding(data, tolerance, verbose = True):
     covalent_radius_a = [x/100 for x in covalent_radius_pm]
     # Retrieve atomic numbers
     atomnos = np.zeros(ns).astype(int)
-    for k in range(ns): atomnos[k] = Periodic_Table.index(list(atomspp['Species'])[k]) # extract atomic numbers
+    for k in range(ns): atomnos[k] = periodic_table.index(list(atomspp['Species'])[k]) # extract atomic numbers
     
     # Construct bonding matrix
     # interatomic distances smaller than (radius(1) + radius(2))*(1+tolerance factor) are bonded
@@ -244,7 +244,7 @@ def crashtest(data, tolerance, verbose = True):
     covalent_radius_a = [x/100 for x in covalent_radius_pm]
     # Retrieve atomic numbers
     atomnos = np.zeros(ns).astype(int)
-    for k in range(ns): atomnos[k] = Periodic_Table.index(list(atomspp['Species'])[k]) # extract atomic numbers
+    for k in range(ns): atomnos[k] = periodic_table.index(list(atomspp['Species'])[k]) # extract atomic numbers
     
     # Construct bonding matrix
     # interatomic distances smaller than (radius(1) + radius(2))*(1+tolerance factor) are bonded

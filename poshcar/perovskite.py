@@ -6,7 +6,7 @@ from poshcar.cartesian import *
 Organics = ["FA", "MA"]
 
 def perovskite(a, A, B, X):
-    if ((A in Periodic_Table) or (A in Organics)) and (B in Periodic_Table) and (X in Periodic_Table):
+    if ((A in periodic_table) or (A in Organics)) and (B in periodic_table) and (X in periodic_table):
         data = [A+B+X+"3\n", "1.0\n",
                 ls+ flpr.format(a) +"  0.0  0.0\n", ls+"0.0   " + flpr.format(a) +"   0.0\n", ls + "0.0  0.0  "+ flpr.format(a) +"\n", 
                 ls+X+ls+B+ls+A+"\n", ls+"3    1    1\n","Direct\n",

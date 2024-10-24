@@ -34,5 +34,5 @@ Added a global float precision variable (flpr) to standardise across the package
 Building the "Atomic Sudoku" capabilities in Disorder.py
 
 <22 October 2024>
-Putting this whole thing in a proper Python package, for once! It's a big overhaul
+(Version 2.0.0) Putting this whole thing in a proper Python package, for once! It's a big overhaul
 Some functions now come with a verbosity switch. This will aid in.. stuff..

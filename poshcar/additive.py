@@ -104,10 +104,4 @@ def graft(data_base, point_base, data_graft, point_graft):
             to_add = to_add.astype(float)
             data_base = addatom(data_base, elem, to_add, verbose = False)
     
-    #Preview of grafted cell
-    #writefile(data_base, "_operations/___graft.vasp")
-    #view(read("_operations/___graft.vasp"), viewer='ngl')
-    #user = input("Proceed with graft? (type [y]es to approve): ")
-    #if user.lower()[0] == 'y': return data_base
-    #else: print("Try with other parameters!\n")
     return data_base

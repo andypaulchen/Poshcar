@@ -62,7 +62,7 @@ def atomsub(data, dopant_name, subatoms, verbose = True):
                     s = subatoms[k] + addindex
                     switchout = data[s] # vacancy coordinates
                     del data[s]
-                    if dopant_name in Periodic_Table:
+                    if dopant_name in periodic_table:
                         data = data + [switchout]
                     break
                 else:
@@ -70,13 +70,13 @@ def atomsub(data, dopant_name, subatoms, verbose = True):
                                   
     # Append symbol of dopant atom to list of elements
     # Append number of dopant atom to list of numbers
-    if dopant_name not in Periodic_Table: dopant_name = ""
+    if dopant_name not in periodic_table: dopant_name = ""
     data[atom_name_index] = ls + data[atom_name_index].strip() + ls + dopant_name + "\n"
     if verbose: print("List of elements (with dopant):", data[atom_name_index].strip())
     data[atom_number_index] = longspace
     for m in range(len(num_list)):
         data[atom_number_index] = data[atom_number_index] + str(num_list[m]) + ls
-    if dopant_name not in Periodic_Table: dopant_number = ""
+    if dopant_name not in periodic_table: dopant_number = ""
     else: dopant_number = str(len(subatoms))
     data[atom_number_index] = data[atom_number_index] + dopant_number + "\n"
     if verbose: print("Number of atoms per element: " + data[atom_number_index].strip())

@@ -1,14 +1,14 @@
-# Disorder.py: Encoding site-disorder in a ".vasp" format
+# disorder.py: Encoding site-disorder in a ".vasp" format
 # Since the format ignores any term after the coordinate line (UNLESS selective dynamics is switched on),
 # We can include atomic species and occupancy terms after them. The result is still readable.
 # Note: do not use with selective dynamics!!!!
 
 # 8 May 2024: I starts to implement the Atomic Sudoku code
 
-from supercell import *
-from atomsub import *
-from Distance import *
-from Additive import *
+from poshcar.supercell import *
+from poshcar.atomsub import *
+from poshcar.distance import *
+from poshcar.additive import *
 import random
 import os
 
